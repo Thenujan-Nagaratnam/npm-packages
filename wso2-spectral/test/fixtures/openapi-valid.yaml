@@ -1,0 +1,22 @@
+openapi: 3.0.3
+info:
+  title: Test API
+  version: 1.0.0
+  description: This is a sample API specification used for automated tests.
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Get health status
+      description: Returns a simple health check payload.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok

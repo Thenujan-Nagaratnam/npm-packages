@@ -1,0 +1,7 @@
+rules:
+  custom-function-check:
+    description: Uses custom function from external module
+    severity: warn
+    given: $.info
+    then:
+      function: customAlwaysPass

@@ -1,0 +1,8 @@
+rules:
+  info-title-required:
+    description: Info title must be present
+    severity: warn
+    given: $.info
+    then:
+      field: title
+      function: truthy
