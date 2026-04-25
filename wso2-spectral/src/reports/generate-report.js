@@ -7,16 +7,16 @@
  */
 
 const OWASP_CATEGORIES = [
-  { key: 'API1:2023', label: 'Broken Object Level Authorization' },
-  { key: 'API2:2023', label: 'Broken Authentication' },
-  { key: 'API3:2023', label: 'Broken Object Property Level Authorization' },
-  { key: 'API4:2023', label: 'Unrestricted Resource Consumption' },
-  { key: 'API5:2023', label: 'Broken Function Level Authorization' },
-  { key: 'API6:2023', label: 'Unrestricted Access to Sensitive Business Flows' },
-  { key: 'API7:2023', label: 'Server Side Request Forgery' },
-  { key: 'API8:2023', label: 'Security Misconfiguration' },
-  { key: 'API9:2023', label: 'Improper Inventory Management' },
-  { key: 'API10:2023', label: 'Unsafe Consumption of APIs' },
+  { key: 'API1:2023',  label: 'Broken Object Level Authorization',              docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/' },
+  { key: 'API2:2023',  label: 'Broken Authentication',                          docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa2-broken-authentication/' },
+  { key: 'API3:2023',  label: 'Broken Object Property Level Authorization',     docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa3-broken-object-property-level-authorization/' },
+  { key: 'API4:2023',  label: 'Unrestricted Resource Consumption',              docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/' },
+  { key: 'API5:2023',  label: 'Broken Function Level Authorization',            docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/' },
+  { key: 'API6:2023',  label: 'Unrestricted Access to Sensitive Business Flows',docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa6-unrestricted-access-to-sensitive-business-flows/' },
+  { key: 'API7:2023',  label: 'Server Side Request Forgery',                    docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa7-server-side-request-forgery/' },
+  { key: 'API8:2023',  label: 'Security Misconfiguration',                      docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa8-security-misconfiguration/' },
+  { key: 'API9:2023',  label: 'Improper Inventory Management',                  docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xa9-improper-inventory-management/' },
+  { key: 'API10:2023', label: 'Unsafe Consumption of APIs',                     docsUrl: 'https://owasp.org/API-Security/editions/2023/en/0xaa-unsafe-consumption-of-apis/' },
 ];
 
 /**
@@ -385,7 +385,7 @@ function generateReport(rulesetName, input) {
           const o = violationsById[id];
           return `${(o && o.method) || ''} ${(o && o.endpoint) || ''}`;
         })).size,
-        docsUrl: 'https://owasp.org/API-Security/editions/2023/',
+        docsUrl: item.docsUrl || 'https://owasp.org/API-Security/editions/2023/',
         viewIssuesFilter: { key: item.key, label: item.label },
       };
     });

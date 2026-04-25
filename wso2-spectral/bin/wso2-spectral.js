@@ -193,7 +193,7 @@ async function run() {
   });
 
   if (shouldRenderReport && args.reportFormat === 'html') {
-    const html = buildHtmlReport(result);
+    const html = buildHtmlReport(result, { specContent });
     const requestedPath = args.reportFilePath || args.outputPath;
     const shouldWriteFile = Boolean(requestedPath || args.openReport);
     const outputPath = requestedPath || 'wso2-spectral-report.html';

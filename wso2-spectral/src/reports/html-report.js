@@ -23,25 +23,49 @@ function toUnifiedReport(input) {
   return null;
 }
 
-function normalizeIssueRows(report) {
+function buildSpecSnippet(specLines, line, endLine) {
+  if (!Array.isArray(specLines) || specLines.length === 0) return '';
+  const start = Number.isFinite(line) ? Math.max(1, line) : 0;
+  if (start <= 0) return '';
+  const end = Number.isFinite(endLine) ? Math.max(start, endLine) : start;
+  const from = Math.max(1, start - 1);
+  const to = Math.min(specLines.length, end + 1);
+  const width = String(to).length;
+  const lines = [];
+  for (let i = from; i <= to; i += 1) {
+    const sourceLine = specLines[i - 1] == null ? '' : String(specLines[i - 1]);
+    lines.push(`${String(i).padStart(width, ' ')} | ${sourceLine}`);
+  }
+  return lines.join('\n');
+}
+
+function normalizeIssueRows(report, specLines) {
   const map = report && report.violationsById && typeof report.violationsById === 'object'
     ? report.violationsById
     : {};
   return Object.values(map).map((item, index) => {
     const severity = item.severity || 'info';
     const path = item.displayPath || (Array.isArray(item.pathSegments) ? item.pathSegments.join(' > ') : 'Unknown path');
+    const startLine = item.range && item.range.start && Number.isFinite(item.range.start.line)
+      ? item.range.start.line + 1
+      : (item.line || 0);
+    const endLine = item.range && item.range.end && Number.isFinite(item.range.end.line)
+      ? item.range.end.line + 1
+      : startLine;
     return {
       id: item.id || `${item.rule || 'unknown'}:${index}`,
       rule: item.rule || 'unknown-rule',
       message: item.message || 'No message provided',
       severity,
-      line: item.line || 0,
+      line: startLine,
+      endLine,
       endpoint: item.endpoint || 'global',
       method: item.method || 'GLOBAL',
       path,
       description: item.description || '',
       fixSuggestion: item.fixSuggestion || '',
       breakdownKeys: Array.isArray(item.breakdownKeys) ? item.breakdownKeys : [],
+      specSnippet: buildSpecSnippet(specLines, startLine, endLine),
     };
   });
 }
@@ -54,7 +78,11 @@ function buildHtmlReport(payload, metadata) {
 
   const reportTitle = metadata && metadata.title ? metadata.title : (report.title || 'WSO2 Spectral Report');
   const generatedAt = metadata && metadata.generatedAt ? metadata.generatedAt : new Date().toISOString();
-  const rows = normalizeIssueRows(report);
+  const specContent = (metadata && typeof metadata.specContent === 'string')
+    ? metadata.specContent
+    : (payload && typeof payload.specContent === 'string' ? payload.specContent : '');
+  const specLines = specContent ? specContent.split(/\r?\n/) : [];
+  const rows = normalizeIssueRows(report, specLines);
   const categories = report.breakdown && Array.isArray(report.breakdown.categories) ? report.breakdown.categories : [];
 
   const data = {
@@ -65,10 +93,21 @@ function buildHtmlReport(payload, metadata) {
 
 
   const scoreValue = report.overview && report.overview.score != null ? Number(report.overview.score) : 0;
+  const normalizedScore = Math.max(0, Math.min(100, scoreValue));
   const grade = scoreValue >= 90 ? 'A' : scoreValue >= 75 ? 'B' : scoreValue >= 60 ? 'C' : scoreValue >= 40 ? 'D' : 'F';
   // Thresholds: A≥90 green, B≥75 blue, C≥60 amber, D≥40 orange, F<40 red
   // Must match the client-side scoreColor() function exactly.
   const gradeColor = scoreValue >= 90 ? '#10B981' : scoreValue >= 75 ? '#38BDF8' : scoreValue >= 60 ? '#EAB308' : scoreValue >= 40 ? '#F97316' : '#F43F5E';
+
+  const reportId = report.reportId || 'rest-api-readiness';
+  const breakdownTitle = report.breakdown && report.breakdown.title ? report.breakdown.title : 'Breakdown';
+  const breakdownSubtitle =
+    reportId === 'ai-readiness' ? 'Evaluate how well your API is prepared for AI agent consumption' :
+    reportId === 'owasp'        ? 'Coverage across the OWASP API Security Top 10 (2023)' :
+                                  'Compliance with WSO2 REST API design guidelines';
+  const breakdownBadge =
+    reportId === 'ai-readiness' ? `${categories.length} dimension${categories.length !== 1 ? 's' : ''}` :
+                                  `${categories.length} categor${categories.length !== 1 ? 'ies' : 'y'}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -108,6 +147,44 @@ function buildHtmlReport(payload, metadata) {
       --r-sm:        6px;
     }
 
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg:          #F6F8FC;
+        --surface:     #FFFFFF;
+        --surface-2:   #F3F5FA;
+        --surface-3:   #EDEFF6;
+        --border:      #D9DEEA;
+        --border-2:    #C9D0E3;
+        --text:        #111827;
+        --text-2:      #374151;
+        --text-3:      #6B7280;
+        --accent:      #7C3AED;
+        --accent-lt:   #6D28D9;
+        --accent-bg:   rgba(124,58,237,0.08);
+        --success:     #059669;
+        --success-bg:  rgba(5,150,105,0.10);
+        --warn:        #D97706;
+        --warn-bg:     rgba(217,119,6,0.10);
+        --danger:      #DC2626;
+        --danger-bg:   rgba(220,38,38,0.10);
+        --info:        #0284C7;
+        --info-bg:     rgba(2,132,199,0.10);
+        --hint:        #9333EA;
+        --hint-bg:     rgba(147,51,234,0.10);
+        --shadow:      0 6px 24px rgba(15,23,42,0.08);
+        --shadow-sm:   0 2px 10px rgba(15,23,42,0.08);
+      }
+      .grade-card {
+        box-shadow: 0 0 0 1px rgba(17,24,39,0.03), 0 12px 22px rgba(15,23,42,0.10);
+      }
+      .grade-letter {
+        text-shadow: 0 0 14px rgba(255, 255, 255, 0.55);
+      }
+      .spec-snippet {
+        color: #1f2937;
+      }
+    }
+
     body {
       font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
@@ -145,7 +222,29 @@ function buildHtmlReport(payload, metadata) {
     }
     .topbar-divider { color: var(--border-2); font-size: 16px; user-select: none; }
     .topbar-label { font-size: 12px; color: var(--text-3); }
-    .topbar-right { font-size: 11px; color: var(--text-3); font-family: ui-monospace, monospace; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .report-id {
+      font-size: 11px; color: var(--text-3); font-family: ui-monospace, monospace;
+    }
+    .theme-toggle {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border-2);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text-2);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+    .theme-toggle:hover { border-color: var(--accent-lt); color: var(--text); }
+    .theme-toggle:focus { outline: none; border-color: var(--accent-lt); }
+    .theme-icon { width: 18px; height: 18px; display: block; }
+    .theme-icon-moon { display: none; }
+    :root[data-theme="light"] .theme-icon-sun { display: none; }
+    :root[data-theme="light"] .theme-icon-moon { display: block; }
 
     /* ── Overview row ───────────────────────────────────────── */
     .overview {
@@ -161,22 +260,64 @@ function buildHtmlReport(payload, metadata) {
       border: 1px solid var(--border);
       border-top: 3px solid ${gradeColor};
       border-radius: var(--r);
-      padding: 20px 24px;
+      padding: 16px 20px;
       text-align: center;
-      min-width: 136px;
-      box-shadow: var(--shadow-sm);
+      min-width: 178px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.02), 0 10px 24px rgba(0,0,0,0.45);
     }
     .grade-label {
       font-size: 9px; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 8px;
     }
+    .grade-progress {
+      --score: ${normalizedScore};
+      --ring-color: ${gradeColor};
+      width: 118px;
+      height: 118px;
+      margin: 0 auto;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at center, var(--surface) 56%, transparent 57%),
+        conic-gradient(var(--ring-color) calc(var(--score) * 1%), #2b2b3a 0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.03),
+        0 0 0 3px rgba(255,255,255,0.01);
+      margin-bottom: 8px;
+    }
+    .grade-progress::after {
+      content: '';
+      position: absolute;
+      width: 84px;
+      height: 84px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: var(--surface);
+    }
+    .grade-center {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+    }
     .grade-letter {
-      font-size: 58px; font-weight: 900; line-height: 1;
+      font-size: 44px;
+      font-weight: 900;
       color: ${gradeColor};
       font-family: ui-monospace, SFMono-Regular, monospace;
+      text-shadow: 0 0 18px rgba(0, 0, 0, 0.4);
     }
     .grade-score {
-      margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--text-2);
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: 0.03em;
     }
 
     .metrics-grid {
@@ -201,60 +342,79 @@ function buildHtmlReport(payload, metadata) {
 
 
     /* ── Section shell ──────────────────────────────────────── */
-    .section {
+    /* Section is now a transparent layout grouper — no card styling */
+    .section { margin-bottom: 36px; }
+
+    .section-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 2px solid var(--border);
+    }
+    .section-heading { display: flex; flex-direction: column; gap: 5px; }
+    .section-title {
+      font-size: 20px; font-weight: 800; color: var(--text);
+      letter-spacing: -0.02em; line-height: 1.2;
+    }
+    .section-subtitle { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+    .section-badge {
+      font-size: 12px; font-weight: 600; color: var(--text-2);
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* Issue Explorer inner card (toolbar + issues layout) */
+    .ie-card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
       overflow: hidden;
-      margin-bottom: 16px;
       box-shadow: var(--shadow-sm);
-    }
-    .section-header {
-      display: flex; align-items: center; gap: 6px;
-      padding: 11px 16px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface-2);
-    }
-    .section-title {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.10em; color: var(--text-2);
     }
 
     /* ── Breakdown grid ─────────────────────────────────────── */
     .breakdown-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      padding: 14px;
+      padding: 0;
     }
     .bucket {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--warn);
+      background: var(--surface);
+      border: 1px solid var(--border-2);
+      border-left: 4px solid transparent; /* color set inline per severity */
       border-radius: var(--r-sm);
-      padding: 12px 14px;
+      padding: 14px 16px;
+      display: flex; flex-direction: column; gap: 6px;
+      box-shadow: var(--shadow-sm);
     }
-    .bucket.pass { border-left-color: var(--success); }
     .bucket-id {
       font-size: 10px; font-family: ui-monospace, monospace;
-      color: var(--text-3); margin-bottom: 3px;
+      color: var(--text-3);
     }
     .bucket-title {
-      font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+      font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.4;
     }
     .bucket-desc {
-      font-size: 11px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4;
+      font-size: 12px; color: var(--text-2); line-height: 1.5; flex: 1;
     }
-    .bucket-bar {
-      height: 3px; background: var(--border-2); border-radius: 2px;
-      margin-bottom: 8px; overflow: hidden;
+    .bucket-status-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 4px; padding-top: 10px;
+      border-top: 1px solid var(--border);
     }
-    .bucket-bar-fill { height: 100%; border-radius: 2px; background: var(--warn); }
-    .bucket.pass .bucket-bar-fill { background: var(--success); }
-    .bucket-footer {
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    .bucket-status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700;
+      border-radius: 4px; padding: 2px 8px;
     }
-    .bucket-stats { font-size: 11px; color: var(--text-3); }
+    .bucket-status-badge.pass  { color: var(--success); background: var(--success-bg); }
+    .bucket-status-badge.error { color: var(--danger);  background: var(--danger-bg);  }
+    .bucket-status-badge.warn  { color: var(--warn);    background: var(--warn-bg);    }
+    .bucket-status-badge.info  { color: var(--info);    background: var(--info-bg);    }
+    .bucket-status-badge::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+    }
+    .bucket-actions { display: flex; align-items: center; gap: 8px; }
     .link-btn {
       border: 1px solid var(--border-2); border-radius: 4px;
       background: transparent; color: var(--accent-lt);
@@ -262,6 +422,12 @@ function buildHtmlReport(payload, metadata) {
       font-family: inherit; transition: background 0.12s, border-color 0.12s;
     }
     .link-btn:hover { background: var(--accent-bg); border-color: var(--accent-lt); }
+    .bucket-docs-link {
+      font-size: 11px; color: var(--text-3); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 2px;
+      transition: color 0.12s;
+    }
+    .bucket-docs-link:hover { color: var(--accent-lt); }
 
     /* ── AI Readiness: summary strip ───────────────────────── */
     .ai-summary-strip {
@@ -274,74 +440,93 @@ function buildHtmlReport(payload, metadata) {
       display: flex; flex-direction: column; gap: 6px;
     }
     .ai-strip-top { display: flex; justify-content: space-between; align-items: baseline; }
-    .ai-strip-name { font-size: 10px; color: var(--text-3); line-height: 1.3; }
-    .ai-strip-pct { font-size: 15px; font-weight: 900; font-family: ui-monospace, monospace; flex-shrink: 0; }
+    .ai-strip-name { font-size: 11px; font-weight: 600; color: var(--text-2); line-height: 1.3; }
+    .ai-strip-pct { font-size: 16px; font-weight: 900; font-family: ui-monospace, monospace; flex-shrink: 0; }
     .ai-strip-bar { height: 3px; background: var(--border-2); border-radius: 2px; overflow: hidden; }
     .ai-strip-fill { height: 100%; border-radius: 2px; }
 
     /* ── AI Readiness accordion ─────────────────────────────── */
-    .ai-accordion { display: flex; flex-direction: column; gap: 8px; padding: 14px; }
-    .ai-dim { border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; background: var(--surface-2); }
+    .ai-accordion { display: flex; flex-direction: column; gap: 16px; padding: 0; }
+    .ai-dim {
+      border: 1px solid var(--border-2); border-radius: var(--r); overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
     .ai-dim-header {
-      display: flex; align-items: flex-start; gap: 14px;
-      padding: 14px 16px; cursor: pointer; user-select: none;
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 18px 20px; cursor: pointer; user-select: none;
+      background: var(--surface-2);
     }
     .ai-dim-header:hover { background: var(--surface-3); }
-    .ai-dim-score { font-size: 22px; font-weight: 900; min-width: 58px; line-height: 1; padding-top: 2px; font-family: ui-monospace, monospace; flex-shrink: 0; }
+    .ai-dim-score { font-size: 26px; font-weight: 900; min-width: 64px; line-height: 1; padding-top: 2px; font-family: ui-monospace, monospace; flex-shrink: 0; }
     .ai-dim-meta { flex: 1; min-width: 0; }
-    .ai-dim-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; display: flex; align-items: center; gap: 7px; }
-    .ai-dim-icon { display: flex; align-items: center; opacity: 0.7; flex-shrink: 0; }
-    .ai-dim-desc { font-size: 12px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4; }
+    .ai-dim-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 7px; }
+    .ai-dim-icon { display: flex; align-items: center; opacity: 0.75; flex-shrink: 0; }
+    .ai-dim-desc { font-size: 13px; color: var(--text-2); margin-bottom: 10px; line-height: 1.55; }
     .ai-dim-tags { display: flex; gap: 5px; flex-wrap: wrap; }
     .ai-dim-tag {
       font-size: 11px; color: var(--text-2);
       border: 1px solid var(--border-2); border-radius: 4px;
-      padding: 1px 8px 1px 6px; background: var(--surface);
+      padding: 2px 9px 2px 6px; background: var(--surface);
       display: inline-flex; align-items: center; gap: 5px;
     }
-    .ai-tag-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
-    .ai-dim-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-top: 2px; }
-    .ai-dim-issue-count { font-size: 11px; color: var(--text-3); white-space: nowrap; }
+    .ai-tag-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .ai-dim-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding-top: 2px; }
+    .ai-dim-issue-count { font-size: 12px; font-weight: 600; color: var(--text-2); white-space: nowrap; }
     .ai-dim-chevron { display: flex; align-items: center; color: var(--text-3); transition: transform 0.18s ease; }
     .ai-dim-chevron.open { transform: rotate(90deg); }
-    .ai-dim-body { border-top: 1px solid var(--border); padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 8px; }
-
-    /* Why it matters — collapsible disclosure */
-    .ai-why-details { }
-    .ai-why-summary {
-      font-size: 11px; font-weight: 600; color: var(--accent-lt);
-      cursor: pointer; list-style: none; user-select: none;
-      margin-bottom: 0; display: inline-flex; align-items: center; gap: 4px;
+    .ai-dim-body {
+      border-top: 2px solid var(--border-2);
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 12px;
+      background: var(--bg);
     }
-    .ai-why-summary::-webkit-details-marker { display: none; }
-    .ai-why-arrow { display: inline-block; transition: transform 0.15s; font-style: normal; }
-    details[open] .ai-why-arrow { transform: rotate(90deg); }
+    .ai-sub-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    /* Why it matters — always visible */
+    .ai-why-label {
+      font-size: 11px; font-weight: 600; color: var(--accent-lt);
+      margin-bottom: 0; display: inline-flex; align-items: center;
+    }
     .ai-why {
-      margin-top: 6px; font-size: 12px; color: var(--text-2); line-height: 1.65;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 10px 14px;
+      margin-top: 6px; font-size: 13px; color: var(--text-2); line-height: 1.7;
+      background: var(--surface-2); border: 1px solid var(--border-2);
+      border-radius: var(--r-sm); padding: 12px 16px;
     }
 
     /* Sub-bucket rows */
-    .ai-sub { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px 14px; }
+    .ai-sub {
+      background: var(--surface-2); border: 1px solid var(--border-2);
+      border-radius: var(--r-sm); padding: 14px 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
     .ai-sub-top { display: flex; align-items: baseline; margin-bottom: 2px; }
-    .ai-sub-score { font-size: 16px; font-weight: 900; min-width: 52px; font-family: ui-monospace, monospace; flex-shrink: 0; }
+    .ai-sub-score { font-size: 18px; font-weight: 900; min-width: 56px; font-family: ui-monospace, monospace; flex-shrink: 0; }
     .ai-sub-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
     .ai-sub-status { font-size: 12px; font-weight: 600; white-space: nowrap; }
     .ai-sub-status.passing { color: var(--success); }
     .ai-sub-status.issues  { color: var(--warn); }
-    .ai-sub-desc { font-size: 11px; color: var(--text-3); margin: 2px 0 10px 52px; line-height: 1.4; }
+    .ai-sub-desc {
+      font-size: 12px; color: var(--text-2);
+      margin: 5px 0 12px 56px;
+      line-height: 1.6;
+    }
     .ai-bar-row { display: flex; align-items: center; gap: 10px; }
     .ai-bar { flex: 1; height: 4px; background: var(--border-2); border-radius: 2px; overflow: hidden; }
     .ai-bar-fill { height: 100%; border-radius: 2px; }
     .ai-view-btn { font-size: 11px; color: var(--accent-lt); background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; white-space: nowrap; }
     .ai-view-btn:hover { text-decoration: underline; }
+    @media (max-width: 1100px) { .ai-sub-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 900px) { .ai-sub-grid { grid-template-columns: 1fr; } }
     @media (max-width: 900px) { .ai-summary-strip { grid-template-columns: repeat(2, 1fr); } }
 
     /* ── Issue Explorer toolbar ─────────────────────────────── */
     .toolbar {
       display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
-      padding: 10px 14px;
+      padding: 10px 16px;
       border-bottom: 1px solid var(--border);
       background: var(--surface-2);
     }
@@ -378,18 +563,25 @@ function buildHtmlReport(payload, metadata) {
       max-height: 620px;
     }
     .group-header {
-      padding: 6px 14px;
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.08em; color: var(--text-3);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px;
+      font-size: 11px; font-weight: 700; color: var(--text-2);
       background: var(--surface-2);
       border-bottom: 1px solid var(--border);
-      position: sticky; top: 0;
+      border-top: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 1;
+    }
+    .group-header:first-child { border-top: none; }
+    .group-count {
+      font-size: 10px; font-weight: 600; color: var(--text-3);
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1px 7px;
     }
     .issue-btn {
       display: block; width: 100%; text-align: left;
       border: none; border-bottom: 1px solid var(--border);
       background: transparent;
-      padding: 10px 12px 10px 15px;
+      padding: 12px 14px 12px 16px;
       cursor: pointer; color: var(--text);
       border-left: 3px solid transparent;
       transition: background 0.10s;
@@ -411,13 +603,13 @@ function buildHtmlReport(payload, metadata) {
     .issue-btn.active.sev-hint       { background: var(--hint-bg);    border-left-color: var(--hint);   }
 
     .issue-msg {
-      font-size: 12px; font-weight: 600; color: var(--text);
-      margin-bottom: 3px;
+      font-size: 13px; font-weight: 600; color: var(--text);
+      margin-bottom: 4px;
       display: -webkit-box; -webkit-line-clamp: 2;
       -webkit-box-orient: vertical; overflow: hidden;
     }
     .issue-path {
-      font-size: 11px; color: var(--text-3);
+      font-size: 11px; color: var(--text-2);
       font-family: ui-monospace, monospace;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
@@ -455,6 +647,15 @@ function buildHtmlReport(payload, metadata) {
     .dfield-val code {
       font-family: ui-monospace, SFMono-Regular, monospace; font-size: 11px;
     }
+    .spec-snippet {
+      margin: 0;
+      white-space: pre;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      color: #d9defa;
+    }
     .fix-block {
       background: rgba(16,185,129,0.07);
       border: 1px solid rgba(16,185,129,0.22);
@@ -462,8 +663,14 @@ function buildHtmlReport(payload, metadata) {
     }
     .fix-block .dfield-key { color: var(--success); }
     .fix-block .dfield-val {
-      background: transparent; border: none; padding: 4px 0 0; color: #a7f3d0;
+      background: transparent; border: none; padding: 4px 0 0;
+      color: #a7f3d0; /* overridden in light mode below */
     }
+    :root[data-theme="light"] .fix-block {
+      background: rgba(5,150,105,0.06);
+      border-color: rgba(5,150,105,0.30);
+    }
+    :root[data-theme="light"] .fix-block .dfield-val { color: #065f46; }
 
     /* ── Severity badges ────────────────────────────────────── */
     .badge {
@@ -487,13 +694,95 @@ function buildHtmlReport(payload, metadata) {
       .metrics-grid        { grid-template-columns: repeat(2, 1fr); }
       .issues-layout       { grid-template-columns: 1fr; }
       .issue-list          { border-right: none; border-bottom: 1px solid var(--border); max-height: 320px; }
-      .breakdown-grid      { grid-template-columns: 1fr; }
+      .breakdown-grid      { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 800px) {
+      .breakdown-grid      { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 700px) {
       .page                { padding: 12px; }
       .overview            { grid-template-columns: 1fr; }
       .metrics-grid        { grid-template-columns: repeat(2, 1fr); }
+      .breakdown-grid      { grid-template-columns: 1fr; }
     }
+
+    :root[data-theme="dark"] {
+      --bg:          #0C0C10;
+      --surface:     #141418;
+      --surface-2:   #1C1C24;
+      --surface-3:   #22222C;
+      --border:      #32324A;
+      --border-2:    #44446A;
+      --text:        #E8E8F2;
+      --text-2:      #9090B0;
+      --text-3:      #525268;
+      --accent:      #7C3AED;
+      --accent-lt:   #A78BFA;
+      --accent-bg:   rgba(124,58,237,0.10);
+      --success:     #10B981;
+      --success-bg:  rgba(16,185,129,0.10);
+      --warn:        #F59E0B;
+      --warn-bg:     rgba(245,158,11,0.10);
+      --danger:      #F43F5E;
+      --danger-bg:   rgba(244,63,94,0.10);
+      --info:        #38BDF8;
+      --info-bg:     rgba(56,189,248,0.10);
+      --hint:        #A855F7;
+      --hint-bg:     rgba(168,85,247,0.10);
+      --shadow:      0 4px 24px rgba(0,0,0,0.50);
+      --shadow-sm:   0 2px 8px  rgba(0,0,0,0.35);
+    }
+    :root[data-theme="light"] {
+      --bg:          #ECEEF5;
+      --surface:     #FFFFFF;
+      --surface-2:   #F2F4FB;
+      --surface-3:   #E6E9F4;
+      --border:      #B4BCCE;
+      --border-2:    #8F9BBB;
+      --text:        #111827;
+      --text-2:      #374151;
+      --text-3:      #6B7280;
+      --accent:      #7C3AED;
+      --accent-lt:   #6D28D9;
+      --accent-bg:   rgba(124,58,237,0.08);
+      --success:     #059669;
+      --success-bg:  rgba(5,150,105,0.10);
+      --warn:        #D97706;
+      --warn-bg:     rgba(217,119,6,0.10);
+      --danger:      #DC2626;
+      --danger-bg:   rgba(220,38,38,0.10);
+      --info:        #0284C7;
+      --info-bg:     rgba(2,132,199,0.10);
+      --hint:        #9333EA;
+      --hint-bg:     rgba(147,51,234,0.10);
+      --shadow:      0 6px 24px rgba(15,23,42,0.14);
+      --shadow-sm:   0 2px 10px rgba(15,23,42,0.12);
+    }
+    /* Light mode: accordion body needs an explicit darker well — var(--bg) is
+       lighter than surface-2 in dark mode but darker in light mode, so override. */
+    :root[data-theme="light"] .ai-dim-body { background: #DDE0EC; }
+    :root[data-theme="light"] .ai-dim { border-color: var(--border-2); }
+    :root[data-theme="light"] .ai-sub {
+      background: #FFFFFF;
+      border-color: var(--border);
+      box-shadow: 0 1px 4px rgba(15,23,42,0.08);
+    }
+    :root[data-theme="light"] .section-header { border-bottom-color: var(--border-2); }
+    :root[data-theme="light"] .ie-card { border-color: var(--border-2); }
+    :root[data-theme="light"] .bucket { border-color: var(--border-2); background: #FFFFFF; }
+    :root[data-theme="light"] .bucket-status-row { border-top-color: var(--border); }
+    :root[data-theme="light"] .grade-card {
+      box-shadow: 0 0 0 1px rgba(17,24,39,0.06), 0 12px 22px rgba(15,23,42,0.12);
+    }
+    :root[data-theme="light"] .grade-progress {
+      background:
+        radial-gradient(circle at center, #FFFFFF 56%, transparent 57%),
+        conic-gradient(var(--ring-color) calc(var(--score) * 1%), #d1d5e8 0);
+    }
+    :root[data-theme="light"] .grade-letter { text-shadow: none; }
+    :root[data-theme="light"] .spec-snippet { color: #1f2937; }
+    :root[data-theme="light"] .ai-summary-strip { background: var(--border); }
+    :root[data-theme="light"] .ai-strip-seg { background: var(--surface-2); }
   </style>
 </head>
 <body>
@@ -503,19 +792,35 @@ function buildHtmlReport(payload, metadata) {
     <div class="topbar">
       <div class="topbar-left">
         <span class="status-dot"></span>
-        <span class="brand-name">WSO2 Spectral</span>
+        <span class="brand-name">WSO2</span>
         <span class="topbar-divider">|</span>
-        <span class="topbar-label">Governance &amp; Security Report</span>
+        <span class="topbar-label">API Readiness Report</span>
       </div>
-      <span class="topbar-right">report&nbsp;${escapeHtml(report.reportId || 'n/a')}</span>
+      <div class="topbar-right">
+        <span class="report-id">report&nbsp;${escapeHtml(report.reportId || 'n/a')}</span>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle theme">
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="4.25" stroke="currentColor" stroke-width="2"></circle>
+            <path d="M12 2.5V5.25M12 18.75V21.5M21.5 12H18.75M5.25 12H2.5M18.72 5.28L16.78 7.22M7.22 16.78L5.28 18.72M18.72 18.72L16.78 16.78M7.22 7.22L5.28 5.28" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20 14.2A8.5 8.5 0 1 1 9.8 4a7 7 0 1 0 10.2 10.2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"></path>
+            <path d="M18 3.5V6M19.25 4.75H16.75M7 17.5V19.5M8 18.5H6" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Overview -->
     <div class="overview">
       <div class="grade-card">
         <div class="grade-label">API Score</div>
-        <div class="grade-letter">${escapeHtml(grade)}</div>
-        <div class="grade-score">${escapeHtml(String(scoreValue))}&thinsp;/&thinsp;100</div>
+        <div class="grade-progress">
+          <div class="grade-center">
+            <div class="grade-letter">${escapeHtml(grade)}</div>
+            <div class="grade-score">${escapeHtml(String(scoreValue))}&thinsp;/&thinsp;100</div>
+          </div>
+        </div>
       </div>
       <div>
         <h1 style="font-size:22px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:4px;">${escapeHtml(reportTitle)}</h1>
@@ -544,34 +849,44 @@ function buildHtmlReport(payload, metadata) {
     <!-- Breakdown -->
     <div class="section">
       <div class="section-header">
-        <span class="section-title">${escapeHtml(report.breakdown && report.breakdown.title ? report.breakdown.title : 'Breakdown')}</span>
+        <div class="section-heading">
+          <span class="section-title">${escapeHtml(breakdownTitle)}</span>
+          <span class="section-subtitle">${escapeHtml(breakdownSubtitle)}</span>
+        </div>
+        <span class="section-badge">${escapeHtml(breakdownBadge)}</span>
       </div>
       <div id="breakdown" class="breakdown-grid"></div>
     </div>
 
     <!-- Issue Explorer -->
-    <div class="section">
+    <div class="section" id="issue-explorer">
       <div class="section-header">
-        <span class="section-title">Issue Explorer</span>
+        <div class="section-heading">
+          <span class="section-title">Issue Explorer</span>
+          <span class="section-subtitle">Browse, filter and inspect all violations in detail</span>
+        </div>
+        <span class="section-badge" id="issueCountBadge">${escapeHtml(String(rows.length))} issue${rows.length !== 1 ? 's' : ''}</span>
       </div>
-      <div class="toolbar">
-        <button class="chip active" data-sev="all"   id="sev-all">All</button>
-        <button class="chip"        data-sev="error" id="sev-error">Errors</button>
-        <button class="chip"        data-sev="warn"  id="sev-warn">Warnings</button>
-        <select id="groupBy">
-          <option value="none">No grouping</option>
-          <option value="rule">Group by rule</option>
-          <option value="endpoint">Group by endpoint</option>
-        </select>
-        <select id="breakdownFilter"><option value="">All categories</option></select>
-        <input id="search" type="text" placeholder="Search rules, messages, paths…" style="flex:1;min-width:180px;" />
-      </div>
-      <div class="issues-layout">
-        <div class="issue-list" id="issueList"></div>
-        <div class="detail-pane" id="detailPane">
-          <div class="detail-empty">
-            <div class="detail-empty-icon">&#9741;</div>
-            <div>Select an issue to view details</div>
+      <div class="ie-card">
+        <div class="toolbar">
+          <button class="chip active" data-sev="all"   id="sev-all">All</button>
+          <button class="chip"        data-sev="error" id="sev-error">Errors</button>
+          <button class="chip"        data-sev="warn"  id="sev-warn">Warnings</button>
+          <select id="groupBy">
+            <option value="none">No grouping</option>
+            <option value="rule">Group by rule</option>
+            <option value="endpoint">Group by endpoint</option>
+          </select>
+          <select id="breakdownFilter"><option value="">All categories</option></select>
+          <input id="search" type="text" placeholder="Search rules, messages, paths…" style="flex:1;min-width:180px;" />
+        </div>
+        <div class="issues-layout">
+          <div class="issue-list" id="issueList"></div>
+          <div class="detail-pane" id="detailPane">
+            <div class="detail-empty">
+              <div class="detail-empty-icon">&#9741;</div>
+              <div>Select an issue to view details</div>
+            </div>
           </div>
         </div>
       </div>
@@ -581,6 +896,7 @@ function buildHtmlReport(payload, metadata) {
   <script>
     const DATA = ${serializeForScript(data)};
     const state = { severity: 'all', search: '', groupBy: 'none', breakdownKey: '', selectedId: null };
+    const THEME_STORAGE_KEY = 'wso2-spectral-theme';
 
     const byId = new Map(DATA.rows.map((row) => [row.id, row]));
 
@@ -598,6 +914,16 @@ function buildHtmlReport(payload, metadata) {
 
     function field(key, val) {
       return '<div class="dfield"><div class="dfield-key">' + key + '</div><div class="dfield-val">' + val + '</div></div>';
+    }
+
+    function getStoredThemeMode() {
+      const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+      return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+    }
+
+    function applyTheme(mode) {
+      const root = document.documentElement;
+      root.setAttribute('data-theme', mode === 'light' ? 'light' : 'dark');
     }
 
     function filteredRows() {
@@ -643,25 +969,12 @@ function buildHtmlReport(payload, metadata) {
         };
         const chevronSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
 
-        // ── 1. Summary strip ──────────────────────────────────────
-        const stripHtml = '<div class="ai-summary-strip">' + DATA.categories.map((dim) => {
-          const pct   = Number(dim.passPercentage != null ? dim.passPercentage : (dim.status === 'passed' ? 100 : 0));
-          const color = scoreColor(pct);
-          return '<div class="ai-strip-seg">' +
-            '<div class="ai-strip-top">' +
-              '<span class="ai-strip-name">' + esc(dim.label) + '</span>' +
-              '<span class="ai-strip-pct" style="color:' + color + ';">' + pct + '%</span>' +
-            '</div>' +
-            '<div class="ai-strip-bar"><div class="ai-strip-fill" style="width:' + pct + '%;background:' + color + ';"></div></div>' +
-          '</div>';
-        }).join('') + '</div>';
-
-        // ── 2. Accordion ──────────────────────────────────────────
+        // ── Accordion ────────────────────────────────────────────
         const accordionHtml = '<div class="ai-accordion">' + DATA.categories.map((dim, dimIdx) => {
           const pct   = Number(dim.passPercentage != null ? dim.passPercentage : (dim.status === 'passed' ? 100 : 0));
           const color = scoreColor(pct);
           const icon  = dimIcons[dim.id] || dimIcons.security;
-          const isOpen = dimIdx === 0;
+          const isOpen = true; // all expanded by default
 
           // Sort sub-buckets: failing first, then ascending passPercentage
           const sortedBuckets = (dim.subBuckets || []).slice().sort((a, b) => {
@@ -709,12 +1022,13 @@ function buildHtmlReport(payload, metadata) {
             '</div>';
           }).join('');
 
-          // "Why this matters" as collapsible <details>
+          // "Why this matters" always visible
           const whyHtml = dim.whyItMatters
-            ? '<details class="ai-why-details"><summary class="ai-why-summary"><i class="ai-why-arrow">&#8250;</i> Why this matters</summary><div class="ai-why">' + esc(dim.whyItMatters) + '</div></details>'
+            ? '<div class="ai-why-label">Why this matters</div><div class="ai-why">' + esc(dim.whyItMatters) + '</div>'
             : '';
 
-          return '<div class="ai-dim" data-dim-id="' + esc(dim.id) + '">' +
+          // Colored left accent stripe matches the dimension score
+          return '<div class="ai-dim" data-dim-id="' + esc(dim.id) + '" style="border-left:4px solid ' + color + ';">' +
             '<div class="ai-dim-header" data-toggle="' + esc(dim.id) + '">' +
               '<span class="ai-dim-score" style="color:' + color + ';">' + pct + '%</span>' +
               '<div class="ai-dim-meta">' +
@@ -729,18 +1043,16 @@ function buildHtmlReport(payload, metadata) {
             '</div>' +
             '<div class="ai-dim-body" id="dim-body-' + esc(dim.id) + '"' + (isOpen ? '' : ' style="display:none;"') + '>' +
               whyHtml +
-              subRows +
+              '<div class="ai-sub-grid">' + subRows + '</div>' +
             '</div>' +
           '</div>';
         }).join('') + '</div>';
 
-        container.innerHTML = stripHtml + accordionHtml;
+        container.innerHTML = accordionHtml;
 
         // Accordion toggle — rotate chevron
         container.querySelectorAll('[data-toggle]').forEach((hdr) => {
           hdr.addEventListener('click', (e) => {
-            // Prevent <details> clicks from bubbling into the accordion toggle
-            if (e.target.closest('details')) return;
             const id      = hdr.getAttribute('data-toggle');
             const body    = document.getElementById('dim-body-' + id);
             const chevron = container.querySelector('[data-chevron="' + id + '"]');
@@ -751,23 +1063,42 @@ function buildHtmlReport(payload, metadata) {
           });
         });
       } else {
-        // OWASP / REST: flat bucket cards
+        // OWASP / REST: flat 4-per-row grid, left-aligned
         container.className = 'breakdown-grid';
+        const extLinkSvg = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:0.6;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
         container.innerHTML = DATA.categories.map((cat) => {
-          const total  = Number(cat.total || 0);
-          const passed = total === 0;
-          const pct    = Math.min(Number(cat.percentage || 0), 100);
-          const barW   = passed ? 100 : pct;
-          const catKey = esc(cat.viewIssuesFilter && cat.viewIssuesFilter.key || '');
-          const btn    = passed ? '' : '<button class="link-btn" data-cat="' + catKey + '">View issues</button>';
-          return '<div class="bucket ' + (passed ? 'pass' : '') + '">' +
+          const total    = Number(cat.total    || 0);
+          const errors   = Number(cat.errors   || 0);
+          const warnings = Number(cat.warnings || 0);
+          const passed   = total === 0;
+
+          // Severity level drives border colour and badge — only show red when
+          // there are actual errors; fall back to warn (amber) for warnings only,
+          // info (blue) for other severities, green for clear.
+          const level = passed ? 'pass' : errors > 0 ? 'error' : warnings > 0 ? 'warn' : 'info';
+          const borderColor = level === 'pass'  ? 'var(--success)'
+                            : level === 'error' ? 'var(--danger)'
+                            : level === 'warn'  ? 'var(--warn)'
+                                                : 'var(--info)';
+
+          const badgeText = passed    ? 'Clear'
+                          : errors > 0   ? errors   + ' error'   + (errors   !== 1 ? 's' : '')
+                          : warnings > 0 ? warnings + ' warning' + (warnings !== 1 ? 's' : '')
+                                         : total    + ' issue'   + (total    !== 1 ? 's' : '');
+
+          const catKey      = esc(cat.viewIssuesFilter && cat.viewIssuesFilter.key || '');
+          const statusBadge = '<span class="bucket-status-badge ' + level + '">' + esc(badgeText) + '</span>';
+          const btn         = passed ? '' : '<button class="link-btn" data-cat="' + catKey + '">View issues</button>';
+          const docsLink    = cat.docsUrl
+            ? '<a class="bucket-docs-link" href="' + esc(cat.docsUrl) + '" target="_blank" rel="noopener">Docs' + extLinkSvg + '</a>'
+            : '';
+          return '<div class="bucket" style="border-left-color:' + borderColor + ';">' +
             '<div class="bucket-id">' + esc(cat.id || '') + '</div>' +
             '<div class="bucket-title">' + esc(cat.label || '') + '</div>' +
             (cat.description ? '<div class="bucket-desc">' + esc(cat.description) + '</div>' : '') +
-            '<div class="bucket-bar"><div class="bucket-bar-fill" style="width:' + barW + '%"></div></div>' +
-            '<div class="bucket-footer">' +
-              '<span class="bucket-stats">' + esc(total) + ' issue' + (total !== 1 ? 's' : '') + ' &bull; ' + esc(pct) + '%</span>' +
-              btn +
+            '<div class="bucket-status-row">' +
+              statusBadge +
+              '<div class="bucket-actions">' + docsLink + btn + '</div>' +
             '</div>' +
           '</div>';
         }).join('');
@@ -779,6 +1110,13 @@ function buildHtmlReport(payload, metadata) {
           const select = document.getElementById('breakdownFilter');
           if (select) select.value = state.breakdownKey;
           renderIssues();
+          window.scrollTo({
+            top: Math.max(
+              document.documentElement.scrollHeight,
+              document.body.scrollHeight
+            ),
+            behavior: 'smooth',
+          });
         });
       });
     }
@@ -787,6 +1125,15 @@ function buildHtmlReport(payload, metadata) {
       const rows = filteredRows();
       if (!state.selectedId || !byId.has(state.selectedId) || !rows.find((r) => r.id === state.selectedId)) {
         state.selectedId = rows.length > 0 ? rows[0].id : null;
+      }
+
+      // Keep section badge count in sync with active filter
+      const badge = document.getElementById('issueCountBadge');
+      if (badge) {
+        const isFiltered = state.severity !== 'all' || state.search.trim() || state.breakdownKey;
+        badge.textContent = isFiltered
+          ? rows.length + ' of ' + DATA.rows.length + ' issue' + (DATA.rows.length !== 1 ? 's' : '')
+          : DATA.rows.length + ' issue' + (DATA.rows.length !== 1 ? 's' : '');
       }
 
       const list   = document.getElementById('issueList');
@@ -802,7 +1149,7 @@ function buildHtmlReport(payload, metadata) {
           '</button>'
         ).join('');
         return '<div>' +
-          (state.groupBy === 'none' ? '' : '<div class="group-header">' + esc(group.key) + ' <span style="opacity:.55;">(' + group.rows.length + ')</span></div>') +
+          (state.groupBy === 'none' ? '' : '<div class="group-header"><span>' + esc(group.key) + '</span><span class="group-count">' + group.rows.length + '</span></div>') +
           items +
         '</div>';
       }).join('') || '<div style="padding:16px;font-size:12px;color:var(--text-3);">No issues match your filters.</div>';
@@ -825,15 +1172,32 @@ function buildHtmlReport(payload, metadata) {
         '<span class="badge ' + esc(sel.severity) + '">' + esc(sel.severity) + '</span>' +
         '<hr class="detail-sep" />' +
         field('Rule', '<code>' + esc(sel.rule) + '</code>') +
-        field('Endpoint', '<code>' + esc(sel.method + ' ' + sel.endpoint) + '</code>') +
-        field('Path', '<code>' + esc(sel.path) + '</code>') +
+        field('Message', esc(sel.message)) +
         (sel.description ? field('Description', esc(sel.description)) : '') +
         (sel.fixSuggestion
           ? '<div class="fix-block"><div class="dfield-key">&#10003;&nbsp; Fix Suggestion</div><div class="dfield-val">' + esc(sel.fixSuggestion) + '</div></div>'
+          : '') +
+        field('Endpoint', '<code>' + esc(sel.method + ' ' + sel.endpoint) + '</code>') +
+        field('Path', '<code>' + esc(sel.path) + '</code>') +
+        (sel.line > 0
+          ? field('Location', '<code>Line ' + esc(sel.line) + (sel.endLine && sel.endLine !== sel.line ? ('-' + esc(sel.endLine)) : '') + '</code>')
+          : '') +
+        (sel.specSnippet
+          ? field('Spec Snippet', '<pre class="spec-snippet"><code>' + esc(sel.specSnippet) + '</code></pre>')
           : '');
     }
 
     function bindControls() {
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+          const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
+          window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+          applyTheme(nextTheme);
+        });
+      }
+
       const filter = document.getElementById('breakdownFilter');
       if (filter) {
         const hasDimensions = Array.isArray(DATA.categories) && DATA.categories.some((c) => Array.isArray(c.subBuckets));
@@ -870,6 +1234,7 @@ function buildHtmlReport(payload, metadata) {
       if (groupBy) groupBy.addEventListener('change', (e) => { state.groupBy = e.target.value || 'none'; renderIssues(); });
     }
 
+    applyTheme(getStoredThemeMode());
     bindControls();
     renderBreakdown();
     renderIssues();
