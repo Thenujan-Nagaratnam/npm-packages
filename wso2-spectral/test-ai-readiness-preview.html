@@ -1,0 +1,751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WSO2 REST API AI Readiness Guidelines</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0C0C10;
+      --surface:     #141418;
+      --surface-2:   #1C1C24;
+      --surface-3:   #22222C;
+      --border:      #282836;
+      --border-2:    #343448;
+      --text:        #E8E8F2;
+      --text-2:      #9090B0;
+      --text-3:      #525268;
+      --accent:      #7C3AED;
+      --accent-lt:   #A78BFA;
+      --accent-bg:   rgba(124,58,237,0.10);
+      --success:     #10B981;
+      --success-bg:  rgba(16,185,129,0.10);
+      --warn:        #F59E0B;
+      --warn-bg:     rgba(245,158,11,0.10);
+      --danger:      #F43F5E;
+      --danger-bg:   rgba(244,63,94,0.10);
+      --info:        #38BDF8;
+      --info-bg:     rgba(56,189,248,0.10);
+      --hint:        #A855F7;
+      --hint-bg:     rgba(168,85,247,0.10);
+      --shadow:      0 4px 24px rgba(0,0,0,0.50);
+      --shadow-sm:   0 2px 8px  rgba(0,0,0,0.35);
+      --r:           10px;
+      --r-sm:        6px;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── Page shell ─────────────────────────────────────────── */
+    .page { max-width: 1440px; margin: 0 auto; padding: 20px; }
+
+    /* ── Top header bar ─────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-2);
+    }
+    .topbar-divider { color: var(--border-2); font-size: 16px; user-select: none; }
+    .topbar-label { font-size: 12px; color: var(--text-3); }
+    .topbar-right { font-size: 11px; color: var(--text-3); font-family: ui-monospace, monospace; }
+
+    /* ── Overview row ───────────────────────────────────────── */
+    .overview {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+      align-items: start;
+    }
+
+    .grade-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid #38BDF8;
+      border-radius: var(--r);
+      padding: 20px 24px;
+      text-align: center;
+      min-width: 136px;
+      box-shadow: var(--shadow-sm);
+    }
+    .grade-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 8px;
+    }
+    .grade-letter {
+      font-size: 58px; font-weight: 900; line-height: 1;
+      color: #38BDF8;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+    .grade-score {
+      margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--text-2);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 10px;
+    }
+    .metric-value {
+      font-size: 30px; font-weight: 800; color: var(--text); line-height: 1;
+    }
+
+
+    /* ── Section shell ──────────────────────────────────────── */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 6px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .section-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.10em; color: var(--text-2);
+    }
+
+    /* ── Breakdown grid ─────────────────────────────────────── */
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 14px;
+    }
+    .bucket {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--warn);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+    }
+    .bucket.pass { border-left-color: var(--success); }
+    .bucket-id {
+      font-size: 10px; font-family: ui-monospace, monospace;
+      color: var(--text-3); margin-bottom: 3px;
+    }
+    .bucket-title {
+      font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+    }
+    .bucket-desc {
+      font-size: 11px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4;
+    }
+    .bucket-bar {
+      height: 3px; background: var(--border-2); border-radius: 2px;
+      margin-bottom: 8px; overflow: hidden;
+    }
+    .bucket-bar-fill { height: 100%; border-radius: 2px; background: var(--warn); }
+    .bucket.pass .bucket-bar-fill { background: var(--success); }
+    .bucket-footer {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .bucket-stats { font-size: 11px; color: var(--text-3); }
+    .link-btn {
+      border: 1px solid var(--border-2); border-radius: 4px;
+      background: transparent; color: var(--accent-lt);
+      cursor: pointer; font-size: 11px; padding: 3px 9px;
+      font-family: inherit; transition: background 0.12s, border-color 0.12s;
+    }
+    .link-btn:hover { background: var(--accent-bg); border-color: var(--accent-lt); }
+
+    /* ── AI Readiness accordion ─────────────────────────────── */
+    .ai-accordion { display: flex; flex-direction: column; gap: 8px; padding: 14px; }
+    .ai-dim {
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      overflow: hidden;
+      background: var(--surface-2);
+    }
+    .ai-dim-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 16px; cursor: pointer; user-select: none;
+    }
+    .ai-dim-header:hover { background: var(--surface-3); }
+    .ai-dim-score {
+      font-size: 22px; font-weight: 900; min-width: 58px; line-height: 1;
+      padding-top: 2px; font-family: ui-monospace, monospace;
+    }
+    .ai-dim-meta { flex: 1; min-width: 0; }
+    .ai-dim-title {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      margin-bottom: 3px; display: flex; align-items: center; gap: 7px;
+    }
+    .ai-dim-icon { font-size: 13px; opacity: 0.7; }
+    .ai-dim-desc { font-size: 12px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4; }
+    .ai-dim-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+    .ai-dim-tag {
+      font-size: 11px; color: var(--text-2);
+      border: 1px solid var(--border-2); border-radius: 4px;
+      padding: 1px 8px; background: var(--surface);
+    }
+    .ai-dim-toggle {
+      font-size: 11px; color: var(--text-3); white-space: nowrap;
+      padding-top: 3px; display: flex; align-items: center; gap: 4px;
+    }
+    .ai-dim-body {
+      border-top: 1px solid var(--border);
+      padding: 12px 16px 14px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .ai-why {
+      font-size: 12px; color: var(--text-2); line-height: 1.65;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 10px 14px;
+    }
+    /* sub-bucket rows */
+    .ai-sub {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px 14px;
+    }
+    .ai-sub-top {
+      display: flex; align-items: baseline; gap: 0; margin-bottom: 2px;
+    }
+    .ai-sub-score {
+      font-size: 16px; font-weight: 900; min-width: 52px;
+      font-family: ui-monospace, monospace;
+    }
+    .ai-sub-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+    .ai-sub-status { font-size: 12px; font-weight: 600; white-space: nowrap; }
+    .ai-sub-status.passing { color: var(--success); }
+    .ai-sub-status.issues  { color: var(--warn); }
+    .ai-sub-desc { font-size: 11px; color: var(--text-3); margin-bottom: 10px; margin-left: 52px; line-height: 1.4; }
+    .ai-bar-row { display: flex; align-items: center; gap: 10px; }
+    .ai-bar {
+      flex: 1; height: 4px; background: var(--border-2);
+      border-radius: 2px; overflow: hidden;
+    }
+    .ai-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s ease; }
+    .ai-view-btn {
+      font-size: 11px; color: var(--accent-lt);
+      background: none; border: none; cursor: pointer;
+      padding: 0; font-family: inherit; white-space: nowrap;
+    }
+    .ai-view-btn:hover { text-decoration: underline; }
+
+    /* ── Issue Explorer toolbar ─────────────────────────────── */
+    .toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .toolbar input, .toolbar select {
+      height: 30px;
+      border: 1px solid var(--border-2); border-radius: var(--r-sm);
+      padding: 0 10px;
+      background: var(--surface); color: var(--text);
+      font-size: 12px; font-family: inherit; outline: none;
+      transition: border-color 0.12s;
+    }
+    .toolbar input:focus, .toolbar select:focus { border-color: var(--accent-lt); }
+    .toolbar input::placeholder { color: var(--text-3); }
+    .toolbar select option { background: var(--surface-2); }
+    .chip {
+      border: 1px solid var(--border-2); border-radius: var(--r-sm);
+      padding: 4px 11px; background: var(--surface);
+      cursor: pointer; font-size: 11px; font-weight: 600;
+      color: var(--text-2); font-family: inherit;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+    .chip:hover { border-color: var(--accent-lt); color: var(--text); }
+    .chip.active { background: var(--accent-bg); color: var(--accent-lt); border-color: var(--accent); }
+
+    /* ── Issue list / detail pane ───────────────────────────── */
+    .issues-layout {
+      display: grid;
+      grid-template-columns: 5fr 4fr;
+      min-height: 520px;
+    }
+    .issue-list {
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      max-height: 620px;
+    }
+    .group-header {
+      padding: 6px 14px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3);
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+    }
+    .issue-btn {
+      display: block; width: 100%; text-align: left;
+      border: none; border-bottom: 1px solid var(--border);
+      background: transparent;
+      padding: 10px 12px 10px 15px;
+      cursor: pointer; color: var(--text);
+      border-left: 3px solid transparent;
+      transition: background 0.10s;
+      font-family: inherit;
+    }
+    .issue-btn:hover { background: var(--surface-2); }
+
+    /* severity left-border colours */
+    .issue-btn.sev-error { border-left-color: var(--danger); }
+    .issue-btn.sev-warn  { border-left-color: var(--warn);   }
+    .issue-btn.sev-info  { border-left-color: var(--info);   }
+    .issue-btn.sev-hint  { border-left-color: var(--hint);   }
+
+    /* active (selected) states */
+    .issue-btn.active                { background: var(--accent-bg);  border-left-color: var(--accent-lt); }
+    .issue-btn.active.sev-error      { background: var(--danger-bg);  border-left-color: var(--danger); }
+    .issue-btn.active.sev-warn       { background: var(--warn-bg);    border-left-color: var(--warn);   }
+    .issue-btn.active.sev-info       { background: var(--info-bg);    border-left-color: var(--info);   }
+    .issue-btn.active.sev-hint       { background: var(--hint-bg);    border-left-color: var(--hint);   }
+
+    .issue-msg {
+      font-size: 12px; font-weight: 600; color: var(--text);
+      margin-bottom: 3px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .issue-path {
+      font-size: 11px; color: var(--text-3);
+      font-family: ui-monospace, monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── Detail pane ────────────────────────────────────────── */
+    .detail-pane {
+      padding: 16px;
+      overflow-y: auto;
+      max-height: 620px;
+    }
+    .detail-empty {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--text-3); font-size: 13px; gap: 6px; text-align: center;
+    }
+    .detail-empty-icon { font-size: 28px; opacity: 0.4; }
+
+    .detail-title {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      line-height: 1.4; margin-bottom: 10px;
+    }
+    .detail-sep {
+      border: none; border-top: 1px solid var(--border); margin: 12px 0;
+    }
+    .dfield { margin-bottom: 10px; }
+    .dfield-key {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.10em; color: var(--text-3); margin-bottom: 4px;
+    }
+    .dfield-val {
+      font-size: 12px; color: var(--text); line-height: 1.5;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 7px 10px;
+    }
+    .dfield-val code {
+      font-family: ui-monospace, SFMono-Regular, monospace; font-size: 11px;
+    }
+    .fix-block {
+      background: rgba(16,185,129,0.07);
+      border: 1px solid rgba(16,185,129,0.22);
+      border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 10px;
+    }
+    .fix-block .dfield-key { color: var(--success); }
+    .fix-block .dfield-val {
+      background: transparent; border: none; padding: 4px 0 0; color: #a7f3d0;
+    }
+
+    /* ── Severity badges ────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 4px; padding: 2px 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+    .badge.error { color: var(--danger); background: var(--danger-bg); border: 1px solid rgba(244,63,94,0.30); }
+    .badge.warn  { color: var(--warn);   background: var(--warn-bg);   border: 1px solid rgba(245,158,11,0.30); }
+    .badge.info  { color: var(--info);   background: var(--info-bg);   border: 1px solid rgba(56,189,248,0.30); }
+    .badge.hint  { color: var(--hint);   background: var(--hint-bg);   border: 1px solid rgba(168,85,247,0.30); }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .overview            { grid-template-columns: 1fr; }
+      .metrics-grid        { grid-template-columns: repeat(2, 1fr); }
+      .issues-layout       { grid-template-columns: 1fr; }
+      .issue-list          { border-right: none; border-bottom: 1px solid var(--border); max-height: 320px; }
+      .breakdown-grid      { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .page                { padding: 12px; }
+      .overview            { grid-template-columns: 1fr; }
+      .metrics-grid        { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="status-dot"></span>
+        <span class="brand-name">WSO2 Spectral</span>
+        <span class="topbar-divider">|</span>
+        <span class="topbar-label">Governance &amp; Security Report</span>
+      </div>
+      <span class="topbar-right">report&nbsp;ai-readiness</span>
+    </div>
+
+    <!-- Overview -->
+    <div class="overview">
+      <div class="grade-card">
+        <div class="grade-label">API Score</div>
+        <div class="grade-letter">B</div>
+        <div class="grade-score">83&thinsp;/&thinsp;100</div>
+      </div>
+      <div>
+        <h1 style="font-size:22px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:4px;">WSO2 REST API AI Readiness Guidelines</h1>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Generated&nbsp;2026-04-25T13:17:25.286Z</div>
+        <div class="metrics-grid">
+          <div class="metric-card" style="border-top:3px solid #38BDF8;">
+            <div class="metric-label">Score</div>
+            <div class="metric-value" style="color:#38BDF8;">83<span style="font-size:14px;font-weight:600;color:var(--text-3);margin-left:4px;">/100</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Passed Checks</div>
+            <div class="metric-value" style="color:var(--success);">60</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Checks</div>
+            <div class="metric-value">69</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Issues</div>
+            <div class="metric-value" style="color:var(--danger);">9</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Breakdown -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">AI Readiness Breakdown</span>
+      </div>
+      <div id="breakdown" class="breakdown-grid"></div>
+    </div>
+
+    <!-- Issue Explorer -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Issue Explorer</span>
+      </div>
+      <div class="toolbar">
+        <button class="chip active" data-sev="all"   id="sev-all">All</button>
+        <button class="chip"        data-sev="error" id="sev-error">Errors</button>
+        <button class="chip"        data-sev="warn"  id="sev-warn">Warnings</button>
+        <select id="groupBy">
+          <option value="none">No grouping</option>
+          <option value="rule">Group by rule</option>
+          <option value="endpoint">Group by endpoint</option>
+        </select>
+        <select id="breakdownFilter"><option value="">All categories</option></select>
+        <input id="search" type="text" placeholder="Search rules, messages, paths…" style="flex:1;min-width:180px;" />
+      </div>
+      <div class="issues-layout">
+        <div class="issue-list" id="issueList"></div>
+        <div class="detail-pane" id="detailPane">
+          <div class="detail-empty">
+            <div class="detail-empty-icon">&#9741;</div>
+            <div>Select an issue to view details</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    const DATA = {"report":{"schemaVersion":"1","reportId":"ai-readiness","title":"WSO2 REST API AI Readiness Guidelines","violationsById":{"ai-readiness-api-contact:0":{"id":"ai-readiness-api-contact:0","rule":"ai-readiness-api-contact","message":"API contact information is recommended for AI readiness","description":"API should have contact information for AI agent queries","fixSuggestion":"Add `info.contact` with at least an email or URL so humans and tools can report issues or request access.","severity":"warn","pathSegments":["info"],"displayPath":"info","endpoint":"global","method":"GLOBAL","line":2,"range":{"start":{"line":1,"character":5},"end":{"line":4,"character":75}},"breakdownKeys":["security"]},"ai-readiness-path-item-description:1":{"id":"ai-readiness-path-item-description:1","rule":"ai-readiness-path-item-description","message":"Path item should include a description for better AI route understanding","description":"Path items should have descriptions to provide route-level context","fixSuggestion":"Add a `description` on the path item for shared behavior, pagination, or resource lifecycle across methods.","severity":"warn","pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","endpoint":"/health","method":"GLOBAL","line":7,"range":{"start":{"line":6,"character":10},"end":{"line":21,"character":31}},"breakdownKeys":["descriptions"]},"ai-readiness-path-item-summary:2":{"id":"ai-readiness-path-item-summary:2","rule":"ai-readiness-path-item-summary","message":"Path item should include a summary for better AI route understanding","description":"Path items should have summaries to provide route-level context","fixSuggestion":"Set `summary` on the path item to describe the resource or route group before drilling into per-method details.","severity":"warn","pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","endpoint":"/health","method":"GLOBAL","line":7,"range":{"start":{"line":6,"character":10},"end":{"line":21,"character":31}},"breakdownKeys":["summaries"]},"ai-readiness-list-pagination-params:3":{"id":"ai-readiness-list-pagination-params:3","rule":"ai-readiness-list-pagination-params","message":"GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets","description":"GET operations should support standard pagination parameters","fixSuggestion":"Add query parameters such as `limit` plus `cursor` or `page` (and document defaults and max) on list-style GETs.","severity":"warn","pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","endpoint":"/health","method":"GET","line":8,"range":{"start":{"line":7,"character":8},"end":{"line":21,"character":31}},"breakdownKeys":["pagination"]},"ai-readiness-operation-tags:4":{"id":"ai-readiness-operation-tags:4","rule":"ai-readiness-operation-tags","message":"Operation should have at least one tag for AI categorization","description":"All operations should have tags for AI categorization","fixSuggestion":"Add `tags` that reference your global `tags` list so operations group correctly in docs and AI context windows.","severity":"warn","pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","endpoint":"/health","method":"GET","line":8,"range":{"start":{"line":7,"character":8},"end":{"line":21,"character":31}},"breakdownKeys":["descriptions"]},"ai-readiness-error-responses-4xx:5":{"id":"ai-readiness-error-responses-4xx:5","rule":"ai-readiness-error-responses-4xx","message":"Operation must define at least one 4xx error response for AI error handling","description":"Operations must define 4xx error responses","fixSuggestion":"Document the client and auth failure cases you support (e.g. 400, 401, 403, 404, 422, 429) with bodies agents can parse.","severity":"warn","pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","endpoint":"/health","method":"GET","line":12,"range":{"start":{"line":11,"character":16},"end":{"line":21,"character":31}},"breakdownKeys":["errors"]},"ai-readiness-error-responses-5xx:6":{"id":"ai-readiness-error-responses-5xx:6","rule":"ai-readiness-error-responses-5xx","message":"Operation should define at least one 5xx error response for AI error handling","description":"Operations should define 5xx error responses","fixSuggestion":"Add a `500` (or `502`/`503`/`504` as appropriate) response with a schema for generic or upstream failures.","severity":"warn","pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","endpoint":"/health","method":"GET","line":12,"range":{"start":{"line":11,"character":16},"end":{"line":21,"character":31}},"breakdownKeys":["errors"]},"ai-readiness-response-example:7":{"id":"ai-readiness-response-example:7","rule":"ai-readiness-response-example","message":"Response should have an example for AI understanding","description":"Success responses should have examples","fixSuggestion":"Under each 2xx response media type, add `example` or `examples` for a representative success payload.","severity":"warn","pathSegments":["paths","/health","get","responses","200","content","application/json"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json","endpoint":"/health","method":"GET","line":16,"range":{"start":{"line":15,"character":29},"end":{"line":21,"character":31}},"breakdownKeys":["examples"]},"ai-readiness-pagination-response-meta:8":{"id":"ai-readiness-pagination-response-meta:8","rule":"ai-readiness-pagination-response-meta","message":"GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating","description":"List endpoint responses must include pagination metadata","fixSuggestion":"Expose at least one of `has_more`, `next_cursor`/`next_page`, or `total` in the JSON body schema for paginated lists.","severity":"warn","pathSegments":["paths","/health","get","responses","200","content","application/json","schema"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json \u003e schema","endpoint":"/health","method":"GET","line":17,"range":{"start":{"line":16,"character":21},"end":{"line":21,"character":31}},"breakdownKeys":["pagination"]}},"overview":{"score":83,"passedChecks":60,"totalChecks":69,"metrics":[{"id":"errors","label":"Errors","value":0,"accent":"error"},{"id":"warnings","label":"Warnings","value":9,"accent":"warning"},{"id":"operations","label":"Operations affected","value":1,"accent":"info"}]},"breakdown":{"title":"AI Readiness Breakdown","categories":[{"id":"discovery","label":"Semantic Discovery","description":"Can AI agents find the right endpoint and understand its intent?","whyItMatters":"AI agents rely on summaries, descriptions, and stable operation identifiers to select the right tool for a task. Without them, agents must infer behavior through trial and error, leading to incorrect calls and hallucinated responses.","status":"failed","total":3,"passPercentage":88,"subBuckets":[{"id":"summaries","label":"Summaries","description":"Clear operation summaries help agents pick the right endpoint quickly.","status":"failed","total":1,"passPercentage":75,"errors":0,"warnings":1,"viewIssuesFilter":{"key":"summaries","label":"Summaries"}},{"id":"descriptions","label":"Descriptions","description":"Detailed descriptions reduce ambiguity in agent execution flows.","status":"failed","total":2,"passPercentage":88,"errors":0,"warnings":2,"viewIssuesFilter":{"key":"descriptions","label":"Descriptions"}},{"id":"operationIds","label":"Operation IDs","description":"Stable operation IDs improve deterministic tool calling for agents.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"operationIds","label":"Operation IDs"}}],"viewIssuesFilter":{"key":"discovery","label":"Semantic Discovery"}},{"id":"contract","label":"Contract Integrity","description":"Can AI agents construct valid requests and interpret responses without guessing?","whyItMatters":"Agents generate payloads based on schemas and examples. Ambiguous types, missing required fields, or absent examples cause invalid requests or misinterpretation of responses.","status":"failed","total":3,"passPercentage":90,"subBuckets":[{"id":"examples","label":"Examples","description":"Request and response examples help agents construct valid payloads.","status":"failed","total":1,"passPercentage":90,"errors":0,"warnings":1,"viewIssuesFilter":{"key":"examples","label":"Examples"}},{"id":"typing","label":"Strict Typing","description":"Strong typing keeps agent-generated requests aligned with schema constraints.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"typing","label":"Strict Typing"}},{"id":"errors","label":"Responses","description":"Defined success and error responses help agents interpret outcomes.","status":"failed","total":2,"passPercentage":80,"errors":0,"warnings":2,"viewIssuesFilter":{"key":"errors","label":"Responses"}}],"viewIssuesFilter":{"key":"contract","label":"Contract Integrity"}},{"id":"resilience","label":"Resilience \u0026 Recovery","description":"Can AI agents handle failures, rate limits, and large datasets gracefully?","whyItMatters":"Autonomous agents operate without human supervision. Error schemas enable self-correction, rate limit headers prevent hammering, and pagination metadata indicates when to stop iterating.","status":"failed","total":2,"passPercentage":69,"subBuckets":[{"id":"errorSemantics","label":"Error Semantics","description":"Structured, actionable error details for AI self-correction.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"errorSemantics","label":"Error Semantics"}},{"id":"headers","label":"Rate Limit Headers","description":"Rate limit and retry headers prevent unsafe autonomous request bursts.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"headers","label":"Rate Limit Headers"}},{"id":"pagination","label":"Pagination","description":"Pagination metadata helps agents iterate large datasets safely.","status":"failed","total":2,"passPercentage":0,"errors":0,"warnings":2,"viewIssuesFilter":{"key":"pagination","label":"Pagination"}}],"viewIssuesFilter":{"key":"resilience","label":"Resilience \u0026 Recovery"}},{"id":"security","label":"Security \u0026 Integrity","description":"Is the API safe for autonomous agent access over the long term?","whyItMatters":"Agents cannot complete interactive OAuth flows. Undefined security risks unintended state changes. Idempotency prevents duplicate side-effects on retries.","status":"failed","total":1,"passPercentage":90,"subBuckets":[{"id":"security","label":"Agent Auth","description":"Explicit security requirements reduce risk in autonomous access.","status":"failed","total":1,"passPercentage":80,"errors":0,"warnings":1,"viewIssuesFilter":{"key":"security","label":"Agent Auth"}},{"id":"idempotency","label":"Idempotency","description":"Idempotency protection avoids duplicate side effects on retries.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"idempotency","label":"Idempotency"}}],"viewIssuesFilter":{"key":"security","label":"Security \u0026 Integrity"}}]},"issueExplorer":{"breakdownFilterOptions":[{"key":"summaries","label":"Summaries"},{"key":"descriptions","label":"Descriptions"},{"key":"operationIds","label":"Operation IDs"},{"key":"examples","label":"Examples"},{"key":"typing","label":"Strict Typing"},{"key":"errors","label":"Responses"},{"key":"errorSemantics","label":"Error Semantics"},{"key":"headers","label":"Rate Limit Headers"},{"key":"pagination","label":"Pagination"},{"key":"security","label":"Agent Auth"},{"key":"idempotency","label":"Idempotency"}]},"aiReadinessSummary":{"score":83,"aggregation":"weighted_harmonic_mean","dimensions":[{"key":"discovery","label":"Semantic Discovery","description":"Can AI agents find the right endpoint and understand its intent?","whyItMatters":"AI agents rely on summaries, descriptions, and stable operation identifiers to select the right tool for a task. Without them, agents must infer behavior through trial and error, leading to incorrect calls and hallucinated responses.","icon":"search","score":88,"aggregationWeight":0.26,"subBuckets":[{"key":"summaries","label":"Summaries","icon":"list-unordered","total":4,"filled":3,"percentage":75,"missing":[{"pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","message":"Path item should include a summary for better AI route understanding"}],"rules":[{"key":"ai-readiness-operation-summary","label":"Operation summary","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-callback-operation-summary","label":"Callback operation summary","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-webhook-operation-summary","label":"Webhook operation summary","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-item-summary","label":"Path item summary","total":1,"filled":0,"percentage":0}]},{"key":"descriptions","label":"Descriptions","icon":"note","total":18,"filled":16,"percentage":89,"missing":[{"pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","message":"Path item should include a description for better AI route understanding"},{"pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","message":"Operation should have at least one tag for AI categorization"}],"rules":[{"key":"ai-readiness-api-description","label":"Api description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-server-description","label":"Server description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-item-description","label":"Path item description","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-operation-description","label":"Operation description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-operation-tags","label":"Operation tags","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-parameter-description","label":"Parameter description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-parameter-description-length","label":"Parameter description length","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-request-body-description","label":"Request body description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-description","label":"Response description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-response-description-length","label":"Error response description length","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-description","label":"Schema description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-description-length","label":"Schema description length","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-title","label":"Schema title","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-description","label":"Schema property description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-enum-description","label":"Schema enum description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-tags-description","label":"Tags description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-tags-external-docs","label":"Tags external docs","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-deprecation-notice","label":"Deprecation notice","total":1,"filled":1,"percentage":100}]},{"key":"operationIds","label":"Operation IDs","icon":"symbol-method","total":3,"filled":3,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-operation-id","label":"Operation id","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-operation-id-casing","label":"Operation id casing","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-operation-id-unique","label":"Operation id unique","total":1,"filled":1,"percentage":100}]}]},{"key":"contract","label":"Contract Integrity","description":"Can AI agents construct valid requests and interpret responses without guessing?","whyItMatters":"Agents generate payloads based on schemas and examples. Ambiguous types, missing required fields, or absent examples cause agents to produce invalid requests or misinterpret response data.","icon":"symbol-interface","score":89,"aggregationWeight":0.26,"subBuckets":[{"key":"examples","label":"Examples","icon":"symbol-field","total":10,"filled":9,"percentage":90,"missing":[{"pathSegments":["paths","/health","get","responses","200","content","application/json"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json","message":"Response should have an example for AI understanding"}],"rules":[{"key":"ai-readiness-parameter-example","label":"Parameter example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-parameter-example","label":"Path parameter example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-parameter-content-example","label":"Parameter content example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-parameter-content-example","label":"Path parameter content example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-request-body-example","label":"Request body example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-example","label":"Response example","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-response-header-example","label":"Response header example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-example","label":"Schema example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-example","label":"Schema property example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-component-header-example","label":"Component header example","total":1,"filled":1,"percentage":100}]},{"key":"typing","label":"Strict Typing","icon":"symbol-parameter","total":12,"filled":12,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-request-body-schema-typed","label":"Request body schema typed","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-request-body-schema-required","label":"Request body schema required","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-schema-typed","label":"Response schema typed","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-type","label":"Schema property type","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-parameter-schema-type","label":"Parameter schema type","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-string-format","label":"Schema string format","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-no-empty-object","label":"Schema no empty object","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-no-empty-object","label":"Schema property no empty object","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-array-items-defined","label":"Array items defined","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-array-property-items-defined","label":"Array property items defined","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-validation-constraints","label":"Schema validation constraints","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-discriminator","label":"Discriminator","total":1,"filled":1,"percentage":100}]},{"key":"errors","label":"Responses","icon":"error","total":9,"filled":7,"percentage":78,"missing":[{"pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","message":"Operation must define at least one 4xx error response for AI error handling"},{"pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","message":"Operation should define at least one 5xx error response for AI error handling"}],"rules":[{"key":"ai-readiness-success-response","label":"Success response","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-success-response-content","label":"Success response content","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-success-response-json-schema","label":"Success response json schema","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-responses-4xx","label":"Error responses 4xx","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-error-responses-5xx","label":"Error responses 5xx","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-error-response-content","label":"Error response content","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-response-json-schema","label":"Error response json schema","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-content-type","label":"Response content type","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-response-schema","label":"Error response schema","total":1,"filled":1,"percentage":100}]}]},{"key":"resilience","label":"Resilience \u0026 Recovery","description":"Can AI agents handle failures, rate limits, and large datasets gracefully?","whyItMatters":"Autonomous agents operate without human supervision. Structured error schemas let agents self-correct, rate limit headers prevent hammering, and pagination metadata tells agents when to stop iterating.","icon":"refresh","score":69,"aggregationWeight":0.24,"subBuckets":[{"key":"errorSemantics","label":"Error Semantics","icon":"feedback","total":4,"filled":4,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-error-schema-fields","label":"Error schema fields","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-schema-rfc7807","label":"Error schema rfc7807","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-schema-details","label":"Error schema details","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-schema-actionable","label":"Error schema actionable","total":1,"filled":1,"percentage":100}]},{"key":"headers","label":"Rate Limit Headers","icon":"server-process","total":1,"filled":1,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-429-rate-limit-headers","label":"429 rate limit headers","total":1,"filled":1,"percentage":100}]},{"key":"pagination","label":"Pagination","icon":"list-flat","total":2,"filled":0,"percentage":0,"missing":[{"pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","message":"GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"},{"pathSegments":["paths","/health","get","responses","200","content","application/json","schema"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json \u003e schema","message":"GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"}],"rules":[{"key":"ai-readiness-list-pagination-params","label":"List pagination params","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-pagination-response-meta","label":"Pagination response meta","total":1,"filled":0,"percentage":0}]}]},{"key":"security","label":"Security \u0026 Integrity","description":"Is the API safe for autonomous agent access over the long term?","whyItMatters":"Agents cannot complete interactive browser-based OAuth flows. Undefined security requirements risk agents making unintended state changes. Idempotency support prevents duplicate side-effects when agents retry operations.","icon":"shield","score":90,"aggregationWeight":0.24,"subBuckets":[{"key":"security","label":"Agent Auth","icon":"shield","total":5,"filled":4,"percentage":80,"missing":[{"pathSegments":["info"],"displayPath":"info","message":"API contact information is recommended for AI readiness"}],"rules":[{"key":"ai-readiness-api-contact","label":"Api contact","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-no-interactive-auth","label":"No interactive auth","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-security-defined","label":"Security defined","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-security-description","label":"Security description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-security-on-mutating-ops","label":"Security on mutating ops","total":1,"filled":1,"percentage":100}]},{"key":"idempotency","label":"Idempotency","icon":"sync","total":1,"filled":1,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-idempotency-key","label":"Idempotency key","total":1,"filled":1,"percentage":100}]}]}],"buckets":[{"key":"summaries","label":"Summaries","icon":"list-unordered","total":4,"filled":3,"percentage":75,"missing":[{"pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","message":"Path item should include a summary for better AI route understanding"}],"rules":[{"key":"ai-readiness-operation-summary","label":"Operation summary","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-callback-operation-summary","label":"Callback operation summary","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-webhook-operation-summary","label":"Webhook operation summary","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-item-summary","label":"Path item summary","total":1,"filled":0,"percentage":0}]},{"key":"descriptions","label":"Descriptions","icon":"note","total":18,"filled":16,"percentage":89,"missing":[{"pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","message":"Path item should include a description for better AI route understanding"},{"pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","message":"Operation should have at least one tag for AI categorization"}],"rules":[{"key":"ai-readiness-api-description","label":"Api description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-server-description","label":"Server description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-item-description","label":"Path item description","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-operation-description","label":"Operation description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-operation-tags","label":"Operation tags","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-parameter-description","label":"Parameter description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-parameter-description-length","label":"Parameter description length","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-request-body-description","label":"Request body description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-description","label":"Response description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-response-description-length","label":"Error response description length","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-description","label":"Schema description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-description-length","label":"Schema description length","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-title","label":"Schema title","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-description","label":"Schema property description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-enum-description","label":"Schema enum description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-tags-description","label":"Tags description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-tags-external-docs","label":"Tags external docs","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-deprecation-notice","label":"Deprecation notice","total":1,"filled":1,"percentage":100}]},{"key":"operationIds","label":"Operation IDs","icon":"symbol-method","total":3,"filled":3,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-operation-id","label":"Operation id","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-operation-id-casing","label":"Operation id casing","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-operation-id-unique","label":"Operation id unique","total":1,"filled":1,"percentage":100}]},{"key":"examples","label":"Examples","icon":"symbol-field","total":10,"filled":9,"percentage":90,"missing":[{"pathSegments":["paths","/health","get","responses","200","content","application/json"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json","message":"Response should have an example for AI understanding"}],"rules":[{"key":"ai-readiness-parameter-example","label":"Parameter example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-parameter-example","label":"Path parameter example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-parameter-content-example","label":"Parameter content example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-path-parameter-content-example","label":"Path parameter content example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-request-body-example","label":"Request body example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-example","label":"Response example","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-response-header-example","label":"Response header example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-example","label":"Schema example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-example","label":"Schema property example","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-component-header-example","label":"Component header example","total":1,"filled":1,"percentage":100}]},{"key":"errors","label":"Responses","icon":"error","total":9,"filled":7,"percentage":78,"missing":[{"pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","message":"Operation must define at least one 4xx error response for AI error handling"},{"pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","message":"Operation should define at least one 5xx error response for AI error handling"}],"rules":[{"key":"ai-readiness-success-response","label":"Success response","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-success-response-content","label":"Success response content","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-success-response-json-schema","label":"Success response json schema","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-responses-4xx","label":"Error responses 4xx","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-error-responses-5xx","label":"Error responses 5xx","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-error-response-content","label":"Error response content","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-response-json-schema","label":"Error response json schema","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-content-type","label":"Response content type","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-response-schema","label":"Error response schema","total":1,"filled":1,"percentage":100}]},{"key":"typing","label":"Strict Typing","icon":"symbol-parameter","total":12,"filled":12,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-request-body-schema-typed","label":"Request body schema typed","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-request-body-schema-required","label":"Request body schema required","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-response-schema-typed","label":"Response schema typed","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-type","label":"Schema property type","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-parameter-schema-type","label":"Parameter schema type","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-string-format","label":"Schema string format","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-no-empty-object","label":"Schema no empty object","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-property-no-empty-object","label":"Schema property no empty object","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-array-items-defined","label":"Array items defined","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-array-property-items-defined","label":"Array property items defined","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-schema-validation-constraints","label":"Schema validation constraints","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-discriminator","label":"Discriminator","total":1,"filled":1,"percentage":100}]},{"key":"errorSemantics","label":"Error Semantics","icon":"feedback","total":4,"filled":4,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-error-schema-fields","label":"Error schema fields","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-schema-rfc7807","label":"Error schema rfc7807","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-schema-details","label":"Error schema details","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-error-schema-actionable","label":"Error schema actionable","total":1,"filled":1,"percentage":100}]},{"key":"headers","label":"Rate Limit Headers","icon":"server-process","total":1,"filled":1,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-429-rate-limit-headers","label":"429 rate limit headers","total":1,"filled":1,"percentage":100}]},{"key":"pagination","label":"Pagination","icon":"list-flat","total":2,"filled":0,"percentage":0,"missing":[{"pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","message":"GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"},{"pathSegments":["paths","/health","get","responses","200","content","application/json","schema"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json \u003e schema","message":"GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"}],"rules":[{"key":"ai-readiness-list-pagination-params","label":"List pagination params","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-pagination-response-meta","label":"Pagination response meta","total":1,"filled":0,"percentage":0}]},{"key":"security","label":"Agent Auth","icon":"shield","total":5,"filled":4,"percentage":80,"missing":[{"pathSegments":["info"],"displayPath":"info","message":"API contact information is recommended for AI readiness"}],"rules":[{"key":"ai-readiness-api-contact","label":"Api contact","total":1,"filled":0,"percentage":0},{"key":"ai-readiness-no-interactive-auth","label":"No interactive auth","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-security-defined","label":"Security defined","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-security-description","label":"Security description","total":1,"filled":1,"percentage":100},{"key":"ai-readiness-security-on-mutating-ops","label":"Security on mutating ops","total":1,"filled":1,"percentage":100}]},{"key":"idempotency","label":"Idempotency","icon":"sync","total":1,"filled":1,"percentage":100,"missing":[],"rules":[{"key":"ai-readiness-idempotency-key","label":"Idempotency key","total":1,"filled":1,"percentage":100}]}],"validation":{"violations":[{"pathSegments":["info"],"displayPath":"info","message":"API contact information is recommended for AI readiness"},{"pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","message":"Path item should include a description for better AI route understanding"},{"pathSegments":["paths","/health"],"displayPath":"paths \u003e /health","message":"Path item should include a summary for better AI route understanding"},{"pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","message":"GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"},{"pathSegments":["paths","/health","get"],"displayPath":"paths \u003e /health \u003e get","message":"Operation should have at least one tag for AI categorization"},{"pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","message":"Operation must define at least one 4xx error response for AI error handling"},{"pathSegments":["paths","/health","get","responses"],"displayPath":"paths \u003e /health \u003e get \u003e responses","message":"Operation should define at least one 5xx error response for AI error handling"},{"pathSegments":["paths","/health","get","responses","200","content","application/json"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json","message":"Response should have an example for AI understanding"},{"pathSegments":["paths","/health","get","responses","200","content","application/json","schema"],"displayPath":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json \u003e schema","message":"GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"}]}}},"rows":[{"id":"ai-readiness-api-contact:0","rule":"ai-readiness-api-contact","message":"API contact information is recommended for AI readiness","severity":"warn","line":2,"endpoint":"global","method":"GLOBAL","path":"info","description":"API should have contact information for AI agent queries","fixSuggestion":"Add `info.contact` with at least an email or URL so humans and tools can report issues or request access.","breakdownKeys":["security"]},{"id":"ai-readiness-path-item-description:1","rule":"ai-readiness-path-item-description","message":"Path item should include a description for better AI route understanding","severity":"warn","line":7,"endpoint":"/health","method":"GLOBAL","path":"paths \u003e /health","description":"Path items should have descriptions to provide route-level context","fixSuggestion":"Add a `description` on the path item for shared behavior, pagination, or resource lifecycle across methods.","breakdownKeys":["descriptions"]},{"id":"ai-readiness-path-item-summary:2","rule":"ai-readiness-path-item-summary","message":"Path item should include a summary for better AI route understanding","severity":"warn","line":7,"endpoint":"/health","method":"GLOBAL","path":"paths \u003e /health","description":"Path items should have summaries to provide route-level context","fixSuggestion":"Set `summary` on the path item to describe the resource or route group before drilling into per-method details.","breakdownKeys":["summaries"]},{"id":"ai-readiness-list-pagination-params:3","rule":"ai-readiness-list-pagination-params","message":"GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets","severity":"warn","line":8,"endpoint":"/health","method":"GET","path":"paths \u003e /health \u003e get","description":"GET operations should support standard pagination parameters","fixSuggestion":"Add query parameters such as `limit` plus `cursor` or `page` (and document defaults and max) on list-style GETs.","breakdownKeys":["pagination"]},{"id":"ai-readiness-operation-tags:4","rule":"ai-readiness-operation-tags","message":"Operation should have at least one tag for AI categorization","severity":"warn","line":8,"endpoint":"/health","method":"GET","path":"paths \u003e /health \u003e get","description":"All operations should have tags for AI categorization","fixSuggestion":"Add `tags` that reference your global `tags` list so operations group correctly in docs and AI context windows.","breakdownKeys":["descriptions"]},{"id":"ai-readiness-error-responses-4xx:5","rule":"ai-readiness-error-responses-4xx","message":"Operation must define at least one 4xx error response for AI error handling","severity":"warn","line":12,"endpoint":"/health","method":"GET","path":"paths \u003e /health \u003e get \u003e responses","description":"Operations must define 4xx error responses","fixSuggestion":"Document the client and auth failure cases you support (e.g. 400, 401, 403, 404, 422, 429) with bodies agents can parse.","breakdownKeys":["errors"]},{"id":"ai-readiness-error-responses-5xx:6","rule":"ai-readiness-error-responses-5xx","message":"Operation should define at least one 5xx error response for AI error handling","severity":"warn","line":12,"endpoint":"/health","method":"GET","path":"paths \u003e /health \u003e get \u003e responses","description":"Operations should define 5xx error responses","fixSuggestion":"Add a `500` (or `502`/`503`/`504` as appropriate) response with a schema for generic or upstream failures.","breakdownKeys":["errors"]},{"id":"ai-readiness-response-example:7","rule":"ai-readiness-response-example","message":"Response should have an example for AI understanding","severity":"warn","line":16,"endpoint":"/health","method":"GET","path":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json","description":"Success responses should have examples","fixSuggestion":"Under each 2xx response media type, add `example` or `examples` for a representative success payload.","breakdownKeys":["examples"]},{"id":"ai-readiness-pagination-response-meta:8","rule":"ai-readiness-pagination-response-meta","message":"GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating","severity":"warn","line":17,"endpoint":"/health","method":"GET","path":"paths \u003e /health \u003e get \u003e responses \u003e 200 \u003e content \u003e application/json \u003e schema","description":"List endpoint responses must include pagination metadata","fixSuggestion":"Expose at least one of `has_more`, `next_cursor`/`next_page`, or `total` in the JSON body schema for paginated lists.","breakdownKeys":["pagination"]}],"categories":[{"id":"discovery","label":"Semantic Discovery","description":"Can AI agents find the right endpoint and understand its intent?","whyItMatters":"AI agents rely on summaries, descriptions, and stable operation identifiers to select the right tool for a task. Without them, agents must infer behavior through trial and error, leading to incorrect calls and hallucinated responses.","status":"failed","total":3,"passPercentage":88,"subBuckets":[{"id":"summaries","label":"Summaries","description":"Clear operation summaries help agents pick the right endpoint quickly.","status":"failed","total":1,"passPercentage":75,"errors":0,"warnings":1,"viewIssuesFilter":{"key":"summaries","label":"Summaries"}},{"id":"descriptions","label":"Descriptions","description":"Detailed descriptions reduce ambiguity in agent execution flows.","status":"failed","total":2,"passPercentage":88,"errors":0,"warnings":2,"viewIssuesFilter":{"key":"descriptions","label":"Descriptions"}},{"id":"operationIds","label":"Operation IDs","description":"Stable operation IDs improve deterministic tool calling for agents.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"operationIds","label":"Operation IDs"}}],"viewIssuesFilter":{"key":"discovery","label":"Semantic Discovery"}},{"id":"contract","label":"Contract Integrity","description":"Can AI agents construct valid requests and interpret responses without guessing?","whyItMatters":"Agents generate payloads based on schemas and examples. Ambiguous types, missing required fields, or absent examples cause invalid requests or misinterpretation of responses.","status":"failed","total":3,"passPercentage":90,"subBuckets":[{"id":"examples","label":"Examples","description":"Request and response examples help agents construct valid payloads.","status":"failed","total":1,"passPercentage":90,"errors":0,"warnings":1,"viewIssuesFilter":{"key":"examples","label":"Examples"}},{"id":"typing","label":"Strict Typing","description":"Strong typing keeps agent-generated requests aligned with schema constraints.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"typing","label":"Strict Typing"}},{"id":"errors","label":"Responses","description":"Defined success and error responses help agents interpret outcomes.","status":"failed","total":2,"passPercentage":80,"errors":0,"warnings":2,"viewIssuesFilter":{"key":"errors","label":"Responses"}}],"viewIssuesFilter":{"key":"contract","label":"Contract Integrity"}},{"id":"resilience","label":"Resilience \u0026 Recovery","description":"Can AI agents handle failures, rate limits, and large datasets gracefully?","whyItMatters":"Autonomous agents operate without human supervision. Error schemas enable self-correction, rate limit headers prevent hammering, and pagination metadata indicates when to stop iterating.","status":"failed","total":2,"passPercentage":69,"subBuckets":[{"id":"errorSemantics","label":"Error Semantics","description":"Structured, actionable error details for AI self-correction.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"errorSemantics","label":"Error Semantics"}},{"id":"headers","label":"Rate Limit Headers","description":"Rate limit and retry headers prevent unsafe autonomous request bursts.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"headers","label":"Rate Limit Headers"}},{"id":"pagination","label":"Pagination","description":"Pagination metadata helps agents iterate large datasets safely.","status":"failed","total":2,"passPercentage":0,"errors":0,"warnings":2,"viewIssuesFilter":{"key":"pagination","label":"Pagination"}}],"viewIssuesFilter":{"key":"resilience","label":"Resilience \u0026 Recovery"}},{"id":"security","label":"Security \u0026 Integrity","description":"Is the API safe for autonomous agent access over the long term?","whyItMatters":"Agents cannot complete interactive OAuth flows. Undefined security risks unintended state changes. Idempotency prevents duplicate side-effects on retries.","status":"failed","total":1,"passPercentage":90,"subBuckets":[{"id":"security","label":"Agent Auth","description":"Explicit security requirements reduce risk in autonomous access.","status":"failed","total":1,"passPercentage":80,"errors":0,"warnings":1,"viewIssuesFilter":{"key":"security","label":"Agent Auth"}},{"id":"idempotency","label":"Idempotency","description":"Idempotency protection avoids duplicate side effects on retries.","status":"passed","total":0,"passPercentage":100,"errors":0,"warnings":0,"viewIssuesFilter":{"key":"idempotency","label":"Idempotency"}}],"viewIssuesFilter":{"key":"security","label":"Security \u0026 Integrity"}}]};
+    const state = { severity: 'all', search: '', groupBy: 'none', breakdownKey: '', selectedId: null };
+
+    const byId = new Map(DATA.rows.map((row) => [row.id, row]));
+
+    function scoreColor(pct) {
+      if (pct >= 90) return '#10B981';
+      if (pct >= 75) return '#38BDF8';
+      if (pct >= 60) return '#EAB308';
+      if (pct >= 40) return '#F97316';
+      return '#F43F5E';
+    }
+
+    function esc(v) {
+      return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function field(key, val) {
+      return '<div class="dfield"><div class="dfield-key">' + key + '</div><div class="dfield-val">' + val + '</div></div>';
+    }
+
+    function filteredRows() {
+      const q = state.search.trim().toLowerCase();
+      return DATA.rows.filter((row) => {
+        if (state.severity !== 'all' && row.severity !== state.severity) return false;
+        if (state.breakdownKey && !(row.breakdownKeys || []).includes(state.breakdownKey)) return false;
+        if (!q) return true;
+        return (row.rule + ' ' + row.message + ' ' + row.path + ' ' + row.endpoint).toLowerCase().includes(q);
+      });
+    }
+
+    function grouped(rows) {
+      if (state.groupBy === 'none') return [{ key: 'All issues', rows }];
+      const m = new Map();
+      for (const row of rows) {
+        const key = state.groupBy === 'rule' ? row.rule : (row.method + ' ' + row.endpoint);
+        if (!m.has(key)) m.set(key, []);
+        m.get(key).push(row);
+      }
+      return Array.from(m.entries()).map(([key, groupRows]) => ({ key, rows: groupRows }));
+    }
+
+    function renderBreakdown() {
+      const container = document.getElementById('breakdown');
+      if (!container) return;
+      if (!Array.isArray(DATA.categories) || DATA.categories.length === 0) {
+        container.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--text-3);">No category breakdown available for this report.</div>';
+        return;
+      }
+
+      // AI Readiness: accordion with dimensions + sub-buckets
+      const hasDimensions = DATA.categories.some((c) => Array.isArray(c.subBuckets));
+      if (hasDimensions) {
+        container.className = 'ai-accordion';
+        const dimIcons = { discovery: '⊙', contract: '⟷', resilience: '↺', security: '⊛' };
+        // First dimension expanded by default
+        container.innerHTML = DATA.categories.map((dim, dimIdx) => {
+          const pct   = Number(dim.passPercentage != null ? dim.passPercentage : (dim.status === 'passed' ? 100 : 0));
+          const color = scoreColor(pct);
+          const icon  = dimIcons[dim.id] || '◈';
+          const tags  = (dim.subBuckets || []).map((s) => '<span class="ai-dim-tag">' + esc(s.label) + '</span>').join('');
+          const toggleLabel = dimIdx === 0 ? 'Collapse ∧' : 'Expand ∨';
+          const bodyStyle   = dimIdx === 0 ? '' : 'display:none;';
+
+          const subRows = (dim.subBuckets || []).map((sub) => {
+            const subPct   = Number(sub.passPercentage != null ? sub.passPercentage : (sub.status === 'passed' ? 100 : 0));
+            const subColor = scoreColor(subPct);
+            const subKey   = esc(sub.viewIssuesFilter && sub.viewIssuesFilter.key || '');
+            const statusHtml = sub.status === 'passed'
+              ? '<span class="ai-sub-status passing">&#10003; passing</span>'
+              : '<span class="ai-sub-status issues">' + esc(sub.total) + ' issue' + (sub.total !== 1 ? 's' : '') + '</span>';
+            const viewBtn = sub.status !== 'passed'
+              ? '<button class="ai-view-btn" data-cat="' + subKey + '">View issues &#8594;</button>'
+              : '';
+            return '<div class="ai-sub">' +
+              '<div class="ai-sub-top">' +
+                '<span class="ai-sub-score" style="color:' + subColor + ';">' + subPct + '%</span>' +
+                '<span class="ai-sub-name">' + esc(sub.label) + '</span>' +
+                statusHtml +
+              '</div>' +
+              '<div class="ai-sub-desc">' + esc(sub.description) + '</div>' +
+              '<div class="ai-bar-row">' +
+                '<div class="ai-bar"><div class="ai-bar-fill" style="width:' + subPct + '%;background:' + subColor + ';"></div></div>' +
+                viewBtn +
+              '</div>' +
+            '</div>';
+          }).join('');
+
+          return '<div class="ai-dim" data-dim-id="' + esc(dim.id) + '">' +
+            '<div class="ai-dim-header" data-toggle="' + esc(dim.id) + '">' +
+              '<span class="ai-dim-score" style="color:' + color + ';">' + pct + '%</span>' +
+              '<div class="ai-dim-meta">' +
+                '<div class="ai-dim-title"><span class="ai-dim-icon">' + icon + '</span>' + esc(dim.label) + '</div>' +
+                '<div class="ai-dim-desc">' + esc(dim.description) + '</div>' +
+                '<div class="ai-dim-tags">' + tags + '</div>' +
+              '</div>' +
+              '<span class="ai-dim-toggle" data-toggle-label="' + esc(dim.id) + '">' + toggleLabel + '</span>' +
+            '</div>' +
+            '<div class="ai-dim-body" id="dim-body-' + esc(dim.id) + '" style="' + bodyStyle + '">' +
+              (dim.whyItMatters ? '<div class="ai-why">' + esc(dim.whyItMatters) + '</div>' : '') +
+              subRows +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        // Accordion toggle
+        container.querySelectorAll('[data-toggle]').forEach((hdr) => {
+          hdr.addEventListener('click', () => {
+            const id   = hdr.getAttribute('data-toggle');
+            const body = document.getElementById('dim-body-' + id);
+            const lbl  = container.querySelector('[data-toggle-label="' + id + '"]');
+            if (!body) return;
+            const open = body.style.display !== 'none';
+            body.style.display = open ? 'none' : '';
+            if (lbl) lbl.textContent = open ? 'Expand ∨' : 'Collapse ∧';
+          });
+        });
+      } else {
+        // OWASP / REST: flat bucket cards
+        container.className = 'breakdown-grid';
+        container.innerHTML = DATA.categories.map((cat) => {
+          const total  = Number(cat.total || 0);
+          const passed = total === 0;
+          const pct    = Math.min(Number(cat.percentage || 0), 100);
+          const barW   = passed ? 100 : pct;
+          const catKey = esc(cat.viewIssuesFilter && cat.viewIssuesFilter.key || '');
+          const btn    = passed ? '' : '<button class="link-btn" data-cat="' + catKey + '">View issues</button>';
+          return '<div class="bucket ' + (passed ? 'pass' : '') + '">' +
+            '<div class="bucket-id">' + esc(cat.id || '') + '</div>' +
+            '<div class="bucket-title">' + esc(cat.label || '') + '</div>' +
+            (cat.description ? '<div class="bucket-desc">' + esc(cat.description) + '</div>' : '') +
+            '<div class="bucket-bar"><div class="bucket-bar-fill" style="width:' + barW + '%"></div></div>' +
+            '<div class="bucket-footer">' +
+              '<span class="bucket-stats">' + esc(total) + ' issue' + (total !== 1 ? 's' : '') + ' &bull; ' + esc(pct) + '%</span>' +
+              btn +
+            '</div>' +
+          '</div>';
+        }).join('');
+      }
+
+      container.querySelectorAll('[data-cat]').forEach((el) => {
+        el.addEventListener('click', () => {
+          state.breakdownKey = el.getAttribute('data-cat') || '';
+          const select = document.getElementById('breakdownFilter');
+          if (select) select.value = state.breakdownKey;
+          renderIssues();
+        });
+      });
+    }
+
+    function renderIssues() {
+      const rows = filteredRows();
+      if (!state.selectedId || !byId.has(state.selectedId) || !rows.find((r) => r.id === state.selectedId)) {
+        state.selectedId = rows.length > 0 ? rows[0].id : null;
+      }
+
+      const list   = document.getElementById('issueList');
+      const detail = document.getElementById('detailPane');
+      if (!list || !detail) return;
+
+      const groups = grouped(rows);
+      list.innerHTML = groups.map((group) => {
+        const items = group.rows.map((row) =>
+          '<button class="issue-btn sev-' + esc(row.severity) + ' ' + (state.selectedId === row.id ? 'active' : '') + '" data-id="' + esc(row.id) + '">' +
+            '<div class="issue-msg">' + esc(row.message) + '</div>' +
+            '<div class="issue-path">' + esc(row.path) + '</div>' +
+          '</button>'
+        ).join('');
+        return '<div>' +
+          (state.groupBy === 'none' ? '' : '<div class="group-header">' + esc(group.key) + ' <span style="opacity:.55;">(' + group.rows.length + ')</span></div>') +
+          items +
+        '</div>';
+      }).join('') || '<div style="padding:16px;font-size:12px;color:var(--text-3);">No issues match your filters.</div>';
+
+      list.querySelectorAll('[data-id]').forEach((el) => {
+        el.addEventListener('click', () => {
+          state.selectedId = el.getAttribute('data-id');
+          renderIssues();
+        });
+      });
+
+      const sel = state.selectedId ? byId.get(state.selectedId) : null;
+      if (!sel) {
+        detail.innerHTML = '<div class="detail-empty"><div class="detail-empty-icon">&#9741;</div><div>Select an issue to view details</div></div>';
+        return;
+      }
+
+      detail.innerHTML =
+        '<div class="detail-title">' + esc(sel.message) + '</div>' +
+        '<span class="badge ' + esc(sel.severity) + '">' + esc(sel.severity) + '</span>' +
+        '<hr class="detail-sep" />' +
+        field('Rule', '<code>' + esc(sel.rule) + '</code>') +
+        field('Endpoint', '<code>' + esc(sel.method + ' ' + sel.endpoint) + '</code>') +
+        field('Path', '<code>' + esc(sel.path) + '</code>') +
+        (sel.description ? field('Description', esc(sel.description)) : '') +
+        (sel.fixSuggestion
+          ? '<div class="fix-block"><div class="dfield-key">&#10003;&nbsp; Fix Suggestion</div><div class="dfield-val">' + esc(sel.fixSuggestion) + '</div></div>'
+          : '');
+    }
+
+    function bindControls() {
+      const filter = document.getElementById('breakdownFilter');
+      if (filter) {
+        const hasDimensions = Array.isArray(DATA.categories) && DATA.categories.some((c) => Array.isArray(c.subBuckets));
+        const flatOptions = hasDimensions
+          ? DATA.categories.flatMap((dim) => (dim.subBuckets || []).map((sub) => ({
+              key: sub.viewIssuesFilter && sub.viewIssuesFilter.key || '',
+              label: dim.label + ' › ' + sub.label,
+            })))
+          : (Array.isArray(DATA.categories) ? DATA.categories : []).map((cat) => ({
+              key: cat.viewIssuesFilter && cat.viewIssuesFilter.key || '',
+              label: cat.label || cat.id || '',
+            }));
+        const opts = ['<option value="">All categories</option>'].concat(
+          flatOptions.map((o) => '<option value="' + esc(o.key) + '">' + esc(o.label) + '</option>')
+        );
+        filter.innerHTML = opts.join('');
+        filter.addEventListener('change', (e) => { state.breakdownKey = e.target.value || ''; renderIssues(); });
+      }
+
+      ['all', 'error', 'warn'].forEach((sev) => {
+        const el = document.getElementById('sev-' + sev);
+        if (!el) return;
+        el.addEventListener('click', () => {
+          state.severity = sev;
+          document.querySelectorAll('[data-sev]').forEach((btn) => btn.classList.remove('active'));
+          el.classList.add('active');
+          renderIssues();
+        });
+      });
+
+      const search = document.getElementById('search');
+      if (search) search.addEventListener('input', (e) => { state.search = e.target.value || ''; renderIssues(); });
+      const groupBy = document.getElementById('groupBy');
+      if (groupBy) groupBy.addEventListener('change', (e) => { state.groupBy = e.target.value || 'none'; renderIssues(); });
+    }
+
+    bindControls();
+    renderBreakdown();
+    renderIssues();
+  </script>
+</body>
+</html>

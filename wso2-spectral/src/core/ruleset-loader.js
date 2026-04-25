@@ -1,6 +1,7 @@
 const yaml = require('js-yaml');
 const path = require('path');
 const fs = require('fs');
+const { createRequire } = require('module');
 const spectralFunctions = require('@stoplight/spectral-functions');
 const spectralFormats = require('@stoplight/spectral-formats');
 
@@ -117,7 +118,21 @@ function resolveCustomFunctions({ customFunctionsPath, gitRootPath }) {
     const resolvedPath = path.isAbsolute(modulePath)
       ? modulePath
       : path.resolve(gitRootPath || process.cwd(), modulePath);
-    const loaded = require(resolvedPath);
+    let loaded;
+    try {
+      loaded = require(resolvedPath);
+    } catch (requireError) {
+      // In some bundled runtimes, dynamic require(path) is transformed.
+      // Fall back to Node's native module loader semantics.
+      try {
+        const nodeRequire = createRequire(__filename);
+        loaded = nodeRequire(resolvedPath);
+      } catch (nodeRequireError) {
+        const message = requireError && requireError.message ? requireError.message : String(requireError);
+        const fallback = nodeRequireError && nodeRequireError.message ? nodeRequireError.message : String(nodeRequireError);
+        throw new Error(`Failed to load custom functions module "${resolvedPath}": ${message} | fallback: ${fallback}`);
+      }
+    }
     if (!loaded || typeof loaded !== 'object') {
       throw new Error(`Custom functions module must export an object: ${resolvedPath}`);
     }
@@ -215,8 +230,32 @@ function isUrl(pathOrUrl) {
   return trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('https:/');
 }
 
-function extractRulesetContent(yamlText, rulesetContentPath) {
-  const doc = yaml.load(yamlText);
+function extractRulesetMetadata(doc) {
+  if (!doc || typeof doc !== 'object') {
+    return undefined;
+  }
+
+  const metadata = {};
+  const fields = [
+    'name',
+    'description',
+    'ruleCategory',
+    'ruleType',
+    'artifactType',
+    'documentationLink',
+    'provider',
+  ];
+
+  for (const field of fields) {
+    if (doc[field] !== undefined) {
+      metadata[field] = doc[field];
+    }
+  }
+
+  return Object.keys(metadata).length > 0 ? metadata : undefined;
+}
+
+function extractRulesetContent(doc, rulesetContentPath) {
   if (!doc || typeof doc !== 'object') {
     throw new Error('Invalid ruleset format');
   }
@@ -296,7 +335,8 @@ async function loadSpectralRuleset({
     rulesetContent = await fs.promises.readFile(rulesetPath, 'utf8');
   }
 
-  rulesetContent = extractRulesetContent(rulesetContent, rulesetContentPath);
+  const sourceDoc = yaml.load(rulesetContent);
+  rulesetContent = extractRulesetContent(sourceDoc, rulesetContentPath);
   const rulesetObject = yaml.load(rulesetContent);
   if (!rulesetObject || typeof rulesetObject !== 'object') {
     throw new Error('Invalid ruleset format');
@@ -305,7 +345,10 @@ async function loadSpectralRuleset({
   const loadedCustomFunctions = resolveCustomFunctions({ customFunctionsPath, gitRootPath });
   const functionRegistry = buildFunctionRegistry(customFunctions || loadedCustomFunctions);
 
-  return { ruleset: normalizeRuleset(rulesetObject, oasRuleset, functionRegistry) };
+  return {
+    ruleset: normalizeRuleset(rulesetObject, oasRuleset, functionRegistry),
+    rulesetMetadata: extractRulesetMetadata(sourceDoc),
+  };
 }
 
 module.exports = {

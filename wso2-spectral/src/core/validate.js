@@ -1,4 +1,5 @@
 const { oas } = require('@stoplight/spectral-rulesets');
+const { createRequire } = require('module');
 const { resolveBundledRuleset } = require('../constants/bundled-rulesets');
 const { loadSpectralRuleset } = require('./ruleset-loader');
 const { runSpectralValidation: runSpectralEngineValidation } = require('./spectral-engine');
@@ -29,6 +30,25 @@ function mergeAdditionalRules(baseRuleset, additionalRules) {
   };
 }
 
+function loadCustomFunctionsModule(modulePath) {
+  if (!modulePath || typeof modulePath !== 'string') {
+    return undefined;
+  }
+
+  try {
+    return require(modulePath);
+  } catch (requireError) {
+    try {
+      const nodeRequire = createRequire(__filename);
+      return nodeRequire(modulePath);
+    } catch (nodeRequireError) {
+      const primary = requireError && requireError.message ? requireError.message : String(requireError);
+      const fallback = nodeRequireError && nodeRequireError.message ? nodeRequireError.message : String(nodeRequireError);
+      throw new Error(`Failed to load custom functions module "${modulePath}": ${primary} | fallback: ${fallback}`);
+    }
+  }
+}
+
 async function runSpectralValidation(options) {
   ensureSupportedNodeVersion();
   const {
@@ -55,6 +75,7 @@ async function runSpectralValidation(options) {
   let resolvedRulesetFileUrl = rulesetFileUrl;
   let resolvedRulesetContentPath = rulesetContentPath;
   let resolvedCustomFunctionsPath = customFunctionsPath;
+  let resolvedCustomFunctions = customFunctions;
 
   if (!resolvedRulesetFileUrl || typeof resolvedRulesetFileUrl !== 'string') {
     const bundled = resolveBundledRuleset(normalizedRulesetId);
@@ -70,18 +91,29 @@ async function runSpectralValidation(options) {
     }
   }
 
-  const resolvedOutputFormat = outputFormat || 'spectral';
-  if (!['summary', 'spectral'].includes(resolvedOutputFormat)) {
-    throw new Error('outputFormat must be "summary" or "spectral"');
+  // AI readiness relies on custom function names in the ruleset; inject them as an object
+  // to avoid runtime/path resolution issues when loading through extension bundles.
+  if (!resolvedCustomFunctions && normalizedRulesetId === 'ai-readiness' && resolvedCustomFunctionsPath) {
+    const loaded = loadCustomFunctionsModule(resolvedCustomFunctionsPath);
+    if (!loaded || typeof loaded !== 'object') {
+      throw new Error(`Custom functions module must export an object: ${resolvedCustomFunctionsPath}`);
+    }
+    resolvedCustomFunctions = loaded;
+    resolvedCustomFunctionsPath = undefined;
   }
 
-  const { ruleset: parsedRuleset } = await loadSpectralRuleset({
+  const resolvedOutputFormat = outputFormat || 'spectral';
+  if (!['summary', 'spectral', 'report'].includes(resolvedOutputFormat)) {
+    throw new Error('outputFormat must be "summary", "report" or "spectral"');
+  }
+
+  const { ruleset: parsedRuleset, rulesetMetadata } = await loadSpectralRuleset({
     filePathOrUrl: resolvedRulesetFileUrl,
     rulesetContentPath: resolvedRulesetContentPath,
     gitRootPath,
     authToken,
     oasRuleset: oas,
-    customFunctions,
+    customFunctions: resolvedCustomFunctions,
     customFunctionsPath: resolvedCustomFunctionsPath,
   });
 
@@ -92,13 +124,29 @@ async function runSpectralValidation(options) {
     return results;
   }
 
-  const shouldIncludeAiReadinessSummary = normalizedRulesetId === 'ai-readiness';
+  const inferredRulesetName =
+    (rulesetMetadata && typeof rulesetMetadata.name === 'string' && rulesetMetadata.name) ||
+    (typeof rulesetId === 'string' ? rulesetId : '');
+  const lowerRulesetName = inferredRulesetName.toLowerCase();
+  const shouldIncludeAiReadinessSummary =
+    normalizedRulesetId === 'ai-readiness' || (lowerRulesetName.includes('ai') && lowerRulesetName.includes('readiness'));
 
-  return buildGovernanceSummary({
+  const summary = buildGovernanceSummary({
     results,
     ruleset,
+    rulesetMetadata,
     buildAiReadinessSummary: shouldIncludeAiReadinessSummary ? buildAiReadinessSummary : undefined,
   });
+
+  if (resolvedOutputFormat === 'report') {
+    return {
+      reportId: summary.reportId,
+      report: summary.report,
+      metadata: summary.rulesetMetadata,
+    };
+  }
+
+  return summary;
 }
 
 module.exports = {

@@ -2,7 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { runSpectralValidation, resolveBundledRuleset } = require('../src');
+const { runSpectralValidation, resolveBundledRuleset, generateReport, getReportKind } = require('../src');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
@@ -51,6 +51,38 @@ function runCli(args) {
 }
 
 async function main() {
+  await test('generateReport maps OWASP violations to breakdown and violationsById', async () => {
+    const payload = {
+      score: 50,
+      passedChecks: 2,
+      totalChecks: 10,
+      violations: [
+        {
+          rule: 'API1:2023-foo',
+          message: 'test',
+          severity: 'error',
+          path: ['paths', '/pets', 'get', '200'],
+        },
+      ],
+    };
+    const report = generateReport('owasp', payload);
+    assert.strictEqual(getReportKind('OWASP'), 'owasp');
+    assert.strictEqual(report.reportId, 'owasp');
+    const byId = report.violationsById;
+    const keys = Object.keys(byId);
+    assert.strictEqual(keys.length, 1);
+    const v = byId[keys[0]];
+    assert.ok(v.breakdownKeys && v.breakdownKeys.includes('API1:2023'), `breakdown: ${v.breakdownKeys}`);
+    const cat1 = report.breakdown.categories.find((c) => c.id === 'API1:2023');
+    assert.ok(cat1, 'OWASP category row');
+    assert.strictEqual(cat1.total, 1);
+  });
+
+  await test('getReportKind for AI and REST', async () => {
+    assert.strictEqual(getReportKind('WSO2 API AI Readiness'), 'ai-readiness');
+    assert.strictEqual(getReportKind('wso2-rest'), 'rest-api-readiness');
+  });
+
   await test('resolveBundledRuleset resolves case-insensitive ids', async () => {
     const resolved = resolveBundledRuleset('  AI-READINESS  ');
     assert.ok(resolved);
@@ -84,7 +116,7 @@ async function main() {
           specContent: validSpecContent,
           outputFormat: 'invalid',
         }),
-      /outputFormat must be "summary" or "spectral"/,
+      /outputFormat must be "summary", "report" or "spectral"/,
     );
   });
 
@@ -136,6 +168,22 @@ async function main() {
     assert.strictEqual(typeof result, 'object');
     assert.ok(result.aiReadinessSummary);
     assert.strictEqual(typeof result.aiReadinessSummary.score, 'number');
+    assert.ok(result.rulesetMetadata);
+    assert.strictEqual(result.rulesetMetadata.name, 'WSO2 REST API AI Readiness Guidelines');
+  });
+
+  await test('runSpectralValidation supports report output directly', async () => {
+    const result = await runSpectralValidation({
+      rulesetId: 'owasp',
+      specContent: validSpecContent,
+      outputFormat: 'report',
+    });
+
+    assert.strictEqual(typeof result, 'object');
+    assert.strictEqual(result.reportId, 'owasp');
+    assert.ok(result.report);
+    assert.strictEqual(result.report.reportId, 'owasp');
+    assert.ok(result.metadata);
   });
 
   await test('CLI help exits zero and shows usage', async () => {
@@ -200,6 +248,36 @@ async function main() {
     const parsed = JSON.parse(outcome.stdout);
     assert.ok(Array.isArray(parsed));
     assert.strictEqual(parsed.length, 0);
+  });
+
+  await test('CLI rejects --open without html report mode', async () => {
+    const outcome = runCli([
+      'lint',
+      VALID_SPEC_PATH,
+      '--ruleset',
+      'owasp',
+      '--open',
+    ]);
+
+    assert.strictEqual(outcome.status, 1);
+    assert.match(outcome.stderr, /--open can only be used with --report html/);
+  });
+
+  await test('CLI --report returns JSON report payload by default', async () => {
+    const outcome = runCli([
+      'lint',
+      VALID_SPEC_PATH,
+      '--ruleset',
+      'owasp',
+      '--report',
+      '--pretty',
+    ]);
+
+    assert.strictEqual(outcome.status, 0);
+    assert.strictEqual(outcome.stderr.trim(), '');
+    const parsed = JSON.parse(outcome.stdout);
+    assert.strictEqual(parsed.reportId, 'owasp');
+    assert.ok(parsed.report);
   });
 
   await test('runtime has no unexpected stderr warnings', async () => {

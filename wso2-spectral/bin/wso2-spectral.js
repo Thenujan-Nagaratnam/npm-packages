@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 const { resolveBundledRuleset } = require('../src/constants/bundled-rulesets');
 
 function ensureSupportedNodeVersion() {
@@ -22,6 +23,9 @@ Required:
 
 Options:
   --summary                     Return processed governance summary.
+  --report [json|html]          Return generated report JSON or render HTML.
+  --report-file <path>          Write report output to a file.
+  --open                        Open generated HTML report in browser.
   --ruleset-content-path <path> Ruleset content key. Example: rulesetContent
   --functions <path>            Path to custom function map module.
   --git-root <path>             Root path for resolving relative ruleset paths.
@@ -76,6 +80,21 @@ function parseArgs(argv) {
       case '--summary':
         args.outputFormat = 'summary';
         break;
+      case '--report':
+        if (next && !next.startsWith('-')) {
+          args.reportFormat = next;
+          i += 1;
+        } else {
+          args.reportFormat = 'json';
+        }
+        break;
+      case '--report-file':
+        args.reportFilePath = next;
+        i += 1;
+        break;
+      case '--open':
+        args.openReport = true;
+        break;
       case '--output':
         args.outputPath = next;
         i += 1;
@@ -101,6 +120,30 @@ function parseArgs(argv) {
   return args;
 }
 
+async function openInBrowser(filePath) {
+  const platform = process.platform;
+  let command;
+  let args;
+
+  if (platform === 'darwin') {
+    command = 'open';
+    args = [filePath];
+  } else if (platform === 'win32') {
+    command = 'cmd';
+    args = ['/c', 'start', '""', filePath];
+  } else {
+    command = 'xdg-open';
+    args = [filePath];
+  }
+
+  await new Promise((resolve, reject) => {
+    const child = spawn(command, args, { stdio: 'ignore', detached: true });
+    child.on('error', reject);
+    child.unref();
+    resolve();
+  });
+}
+
 async function run() {
   ensureSupportedNodeVersion();
   const args = parseArgs(process.argv.slice(2));
@@ -109,7 +152,7 @@ async function run() {
     return;
   }
 
-  const { runSpectralValidation } = require('../src');
+  const { runSpectralValidation, buildHtmlReport } = require('../src');
 
   if (args.command && args.command !== 'lint') {
     throw new Error(`Unsupported command: ${args.command}`);
@@ -127,6 +170,17 @@ async function run() {
   const rulesetId = bundled ? bundled.rulesetId : args.ruleset;
   const rulesetFileUrl = bundled ? undefined : args.ruleset;
 
+  if (args.reportFormat && !['html', 'json'].includes(args.reportFormat)) {
+    throw new Error(`Unsupported report format: ${args.reportFormat}`);
+  }
+  if (args.openReport && args.reportFormat !== 'html') {
+    throw new Error('--open can only be used with --report html');
+  }
+  const shouldRenderReport = Boolean(args.reportFormat);
+  const resolvedOutputFormat = shouldRenderReport
+    ? (args.reportFormat === 'html' ? 'summary' : 'report')
+    : args.outputFormat;
+
   const result = await runSpectralValidation({
     rulesetId,
     specContent,
@@ -135,8 +189,26 @@ async function run() {
     customFunctionsPath: args.customFunctionsPath,
     gitRootPath: args.gitRootPath,
     authToken: args.authToken,
-    outputFormat: args.outputFormat,
+    outputFormat: resolvedOutputFormat,
   });
+
+  if (shouldRenderReport && args.reportFormat === 'html') {
+    const html = buildHtmlReport(result);
+    const requestedPath = args.reportFilePath || args.outputPath;
+    const shouldWriteFile = Boolean(requestedPath || args.openReport);
+    const outputPath = requestedPath || 'wso2-spectral-report.html';
+
+    if (shouldWriteFile) {
+      const absoluteReportPath = path.resolve(process.cwd(), outputPath);
+      await fs.promises.writeFile(absoluteReportPath, html, 'utf8');
+      if (args.openReport) {
+        await openInBrowser(absoluteReportPath);
+      }
+      return;
+    }
+    process.stdout.write(html);
+    return;
+  }
 
   const output = JSON.stringify(result, null, args.pretty ? 2 : 0);
   if (args.outputPath) {

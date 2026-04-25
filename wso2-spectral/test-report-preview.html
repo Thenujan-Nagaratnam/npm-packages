@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Petstore API</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #0C0C10;
+      --surface:     #141418;
+      --surface-2:   #1C1C24;
+      --surface-3:   #22222C;
+      --border:      #282836;
+      --border-2:    #343448;
+      --text:        #E8E8F2;
+      --text-2:      #9090B0;
+      --text-3:      #525268;
+      --accent:      #7C3AED;
+      --accent-lt:   #A78BFA;
+      --accent-bg:   rgba(124,58,237,0.10);
+      --success:     #10B981;
+      --success-bg:  rgba(16,185,129,0.10);
+      --warn:        #F59E0B;
+      --warn-bg:     rgba(245,158,11,0.10);
+      --danger:      #F43F5E;
+      --danger-bg:   rgba(244,63,94,0.10);
+      --info:        #38BDF8;
+      --info-bg:     rgba(56,189,248,0.10);
+      --hint:        #A855F7;
+      --hint-bg:     rgba(168,85,247,0.10);
+      --shadow:      0 4px 24px rgba(0,0,0,0.50);
+      --shadow-sm:   0 2px 8px  rgba(0,0,0,0.35);
+      --r:           10px;
+      --r-sm:        6px;
+    }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* ── Page shell ─────────────────────────────────────────── */
+    .page { max-width: 1440px; margin: 0 auto; padding: 20px; }
+
+    /* ── Top header bar ─────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 10px; }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--text-2);
+    }
+    .topbar-divider { color: var(--border-2); font-size: 16px; user-select: none; }
+    .topbar-label { font-size: 12px; color: var(--text-3); }
+    .topbar-right { font-size: 11px; color: var(--text-3); font-family: ui-monospace, monospace; }
+
+    /* ── Overview row ───────────────────────────────────────── */
+    .overview {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+      align-items: start;
+    }
+
+    .grade-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid #EAB308;
+      border-radius: var(--r);
+      padding: 20px 24px;
+      text-align: center;
+      min-width: 136px;
+      box-shadow: var(--shadow-sm);
+    }
+    .grade-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--text-3); margin-bottom: 8px;
+    }
+    .grade-letter {
+      font-size: 58px; font-weight: 900; line-height: 1;
+      color: #EAB308;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+    .grade-score {
+      margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--text-2);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3); margin-bottom: 10px;
+    }
+    .metric-value {
+      font-size: 30px; font-weight: 800; color: var(--text); line-height: 1;
+    }
+
+    /* ── Metadata accordion ─────────────────────────────────── */
+    .meta-details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .meta-details summary { cursor: pointer; font-weight: 600; user-select: none; }
+    .meta-row { margin-top: 5px; color: var(--text-3); }
+    .meta-row b { color: var(--text-2); }
+
+    /* ── Section shell ──────────────────────────────────────── */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 6px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .section-title {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.10em; color: var(--text-2);
+    }
+
+    /* ── Breakdown grid ─────────────────────────────────────── */
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 14px;
+    }
+    .bucket {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--warn);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
+    }
+    .bucket.pass { border-left-color: var(--success); }
+    .bucket-id {
+      font-size: 10px; font-family: ui-monospace, monospace;
+      color: var(--text-3); margin-bottom: 3px;
+    }
+    .bucket-title {
+      font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px;
+    }
+    .bucket-desc {
+      font-size: 11px; color: var(--text-3); margin-bottom: 8px; line-height: 1.4;
+    }
+    .bucket-bar {
+      height: 3px; background: var(--border-2); border-radius: 2px;
+      margin-bottom: 8px; overflow: hidden;
+    }
+    .bucket-bar-fill { height: 100%; border-radius: 2px; background: var(--warn); }
+    .bucket.pass .bucket-bar-fill { background: var(--success); }
+    .bucket-footer {
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .bucket-stats { font-size: 11px; color: var(--text-3); }
+    .link-btn {
+      border: 1px solid var(--border-2); border-radius: 4px;
+      background: transparent; color: var(--accent-lt);
+      cursor: pointer; font-size: 11px; padding: 3px 9px;
+      font-family: inherit; transition: background 0.12s, border-color 0.12s;
+    }
+    .link-btn:hover { background: var(--accent-bg); border-color: var(--accent-lt); }
+
+    /* ── Issue Explorer toolbar ─────────────────────────────── */
+    .toolbar {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .toolbar input, .toolbar select {
+      height: 30px;
+      border: 1px solid var(--border-2); border-radius: var(--r-sm);
+      padding: 0 10px;
+      background: var(--surface); color: var(--text);
+      font-size: 12px; font-family: inherit; outline: none;
+      transition: border-color 0.12s;
+    }
+    .toolbar input:focus, .toolbar select:focus { border-color: var(--accent-lt); }
+    .toolbar input::placeholder { color: var(--text-3); }
+    .toolbar select option { background: var(--surface-2); }
+    .chip {
+      border: 1px solid var(--border-2); border-radius: var(--r-sm);
+      padding: 4px 11px; background: var(--surface);
+      cursor: pointer; font-size: 11px; font-weight: 600;
+      color: var(--text-2); font-family: inherit;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+    .chip:hover { border-color: var(--accent-lt); color: var(--text); }
+    .chip.active { background: var(--accent-bg); color: var(--accent-lt); border-color: var(--accent); }
+
+    /* ── Issue list / detail pane ───────────────────────────── */
+    .issues-layout {
+      display: grid;
+      grid-template-columns: 5fr 4fr;
+      min-height: 520px;
+    }
+    .issue-list {
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      max-height: 620px;
+    }
+    .group-header {
+      padding: 6px 14px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-3);
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+    }
+    .issue-btn {
+      display: block; width: 100%; text-align: left;
+      border: none; border-bottom: 1px solid var(--border);
+      background: transparent;
+      padding: 10px 12px 10px 15px;
+      cursor: pointer; color: var(--text);
+      border-left: 3px solid transparent;
+      transition: background 0.10s;
+      font-family: inherit;
+    }
+    .issue-btn:hover { background: var(--surface-2); }
+
+    /* severity left-border colours */
+    .issue-btn.sev-error { border-left-color: var(--danger); }
+    .issue-btn.sev-warn  { border-left-color: var(--warn);   }
+    .issue-btn.sev-info  { border-left-color: var(--info);   }
+    .issue-btn.sev-hint  { border-left-color: var(--hint);   }
+
+    /* active (selected) states */
+    .issue-btn.active                { background: var(--accent-bg);  border-left-color: var(--accent-lt); }
+    .issue-btn.active.sev-error      { background: var(--danger-bg);  border-left-color: var(--danger); }
+    .issue-btn.active.sev-warn       { background: var(--warn-bg);    border-left-color: var(--warn);   }
+    .issue-btn.active.sev-info       { background: var(--info-bg);    border-left-color: var(--info);   }
+    .issue-btn.active.sev-hint       { background: var(--hint-bg);    border-left-color: var(--hint);   }
+
+    .issue-msg {
+      font-size: 12px; font-weight: 600; color: var(--text);
+      margin-bottom: 3px;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .issue-path {
+      font-size: 11px; color: var(--text-3);
+      font-family: ui-monospace, monospace;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── Detail pane ────────────────────────────────────────── */
+    .detail-pane {
+      padding: 16px;
+      overflow-y: auto;
+      max-height: 620px;
+    }
+    .detail-empty {
+      height: 100%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--text-3); font-size: 13px; gap: 6px; text-align: center;
+    }
+    .detail-empty-icon { font-size: 28px; opacity: 0.4; }
+
+    .detail-title {
+      font-size: 14px; font-weight: 700; color: var(--text);
+      line-height: 1.4; margin-bottom: 10px;
+    }
+    .detail-sep {
+      border: none; border-top: 1px solid var(--border); margin: 12px 0;
+    }
+    .dfield { margin-bottom: 10px; }
+    .dfield-key {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.10em; color: var(--text-3); margin-bottom: 4px;
+    }
+    .dfield-val {
+      font-size: 12px; color: var(--text); line-height: 1.5;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--r-sm); padding: 7px 10px;
+    }
+    .dfield-val code {
+      font-family: ui-monospace, SFMono-Regular, monospace; font-size: 11px;
+    }
+    .fix-block {
+      background: rgba(16,185,129,0.07);
+      border: 1px solid rgba(16,185,129,0.22);
+      border-radius: var(--r-sm); padding: 10px 12px; margin-bottom: 10px;
+    }
+    .fix-block .dfield-key { color: var(--success); }
+    .fix-block .dfield-val {
+      background: transparent; border: none; padding: 4px 0 0; color: #a7f3d0;
+    }
+
+    /* ── Severity badges ────────────────────────────────────── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      border-radius: 4px; padding: 2px 8px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: currentColor; flex-shrink: 0;
+    }
+    .badge.error { color: var(--danger); background: var(--danger-bg); border: 1px solid rgba(244,63,94,0.30); }
+    .badge.warn  { color: var(--warn);   background: var(--warn-bg);   border: 1px solid rgba(245,158,11,0.30); }
+    .badge.info  { color: var(--info);   background: var(--info-bg);   border: 1px solid rgba(56,189,248,0.30); }
+    .badge.hint  { color: var(--hint);   background: var(--hint-bg);   border: 1px solid rgba(168,85,247,0.30); }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .overview            { grid-template-columns: 1fr; }
+      .metrics-grid        { grid-template-columns: repeat(2, 1fr); }
+      .issues-layout       { grid-template-columns: 1fr; }
+      .issue-list          { border-right: none; border-bottom: 1px solid var(--border); max-height: 320px; }
+      .breakdown-grid      { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .page                { padding: 12px; }
+      .overview            { grid-template-columns: 1fr; }
+      .metrics-grid        { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <span class="status-dot"></span>
+        <span class="brand-name">WSO2 Spectral</span>
+        <span class="topbar-divider">|</span>
+        <span class="topbar-label">Governance &amp; Security Report</span>
+      </div>
+      <span class="topbar-right">report&nbsp;test-001</span>
+    </div>
+
+    <!-- Overview -->
+    <div class="overview">
+      <div class="grade-card">
+        <div class="grade-label">API Score</div>
+        <div class="grade-letter">C</div>
+        <div class="grade-score">72&thinsp;/&thinsp;100</div>
+      </div>
+      <div>
+        <h1 style="font-size:22px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:4px;">My Petstore API</h1>
+        <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Generated&nbsp;2026-04-25T10:00:00Z</div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Score</div>
+            <div class="metric-value">72</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Passed Checks</div>
+            <div class="metric-value" style="color:var(--success);">18</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Total Checks</div>
+            <div class="metric-value">25</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Issues</div>
+            <div class="metric-value" style="color:var(--danger);">2</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <!-- Breakdown -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Breakdown by Category</span>
+      </div>
+      <div id="breakdown" class="breakdown-grid"></div>
+    </div>
+
+    <!-- Issue Explorer -->
+    <div class="section">
+      <div class="section-header">
+        <span class="section-title">Issue Explorer</span>
+      </div>
+      <div class="toolbar">
+        <button class="chip active" data-sev="all"   id="sev-all">All</button>
+        <button class="chip"        data-sev="error" id="sev-error">Errors</button>
+        <button class="chip"        data-sev="warn"  id="sev-warn">Warnings</button>
+        <select id="groupBy">
+          <option value="none">No grouping</option>
+          <option value="rule">Group by rule</option>
+          <option value="endpoint">Group by endpoint</option>
+        </select>
+        <select id="breakdownFilter"><option value="">All categories</option></select>
+        <input id="search" type="text" placeholder="Search rules, messages, paths…" style="flex:1;min-width:180px;" />
+      </div>
+      <div class="issues-layout">
+        <div class="issue-list" id="issueList"></div>
+        <div class="detail-pane" id="detailPane">
+          <div class="detail-empty">
+            <div class="detail-empty-icon">&#9741;</div>
+            <div>Select an issue to view details</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <script>
+    const DATA = {"report":{"reportId":"test-001","title":"My API Spec","overview":{"score":72,"passedChecks":18,"totalChecks":25},"breakdown":{"title":"Breakdown by Category","categories":[{"id":"API1:2023","label":"Broken Object Level Authorization","description":"Object-level access control","total":3,"percentage":60,"viewIssuesFilter":{"key":"API1"}},{"id":"API2:2023","label":"Broken Authentication","description":"Auth \u0026 token validation","total":0,"percentage":100,"viewIssuesFilter":{"key":"API2"}},{"id":"API8:2023","label":"Security Misconfiguration","description":"CORS, headers, TLS","total":2,"percentage":40,"viewIssuesFilter":{"key":"API8"}}]},"violationsById":{"v1":{"id":"v1","rule":"oas3-missing-auth","message":"Operation is missing security definition","severity":"error","endpoint":"/users/{id}","method":"GET","displayPath":"paths./users/{id}.get.security","description":"All operations should declare security requirements","fixSuggestion":"Add a security field to this operation","breakdownKeys":["API1"]},"v2":{"id":"v2","rule":"oas3-no-summary","message":"Operation is missing a summary","severity":"warn","endpoint":"/products","method":"POST","displayPath":"paths./products.post.summary","description":"Summaries improve API documentation","fixSuggestion":"Add a summary field","breakdownKeys":["API8"]}}},"rows":[{"id":"v1","rule":"oas3-missing-auth","message":"Operation is missing security definition","severity":"error","line":0,"endpoint":"/users/{id}","method":"GET","path":"paths./users/{id}.get.security","description":"All operations should declare security requirements","fixSuggestion":"Add a security field to this operation","breakdownKeys":["API1"]},{"id":"v2","rule":"oas3-no-summary","message":"Operation is missing a summary","severity":"warn","line":0,"endpoint":"/products","method":"POST","path":"paths./products.post.summary","description":"Summaries improve API documentation","fixSuggestion":"Add a summary field","breakdownKeys":["API8"]}],"categories":[{"id":"API1:2023","label":"Broken Object Level Authorization","description":"Object-level access control","total":3,"percentage":60,"viewIssuesFilter":{"key":"API1"}},{"id":"API2:2023","label":"Broken Authentication","description":"Auth \u0026 token validation","total":0,"percentage":100,"viewIssuesFilter":{"key":"API2"}},{"id":"API8:2023","label":"Security Misconfiguration","description":"CORS, headers, TLS","total":2,"percentage":40,"viewIssuesFilter":{"key":"API8"}}]};
+    const state = { severity: 'all', search: '', groupBy: 'none', breakdownKey: '', selectedId: null };
+
+    const byId = new Map(DATA.rows.map((row) => [row.id, row]));
+
+    function esc(v) {
+      return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function field(key, val) {
+      return '<div class="dfield"><div class="dfield-key">' + key + '</div><div class="dfield-val">' + val + '</div></div>';
+    }
+
+    function filteredRows() {
+      const q = state.search.trim().toLowerCase();
+      return DATA.rows.filter((row) => {
+        if (state.severity !== 'all' && row.severity !== state.severity) return false;
+        if (state.breakdownKey && !(row.breakdownKeys || []).includes(state.breakdownKey)) return false;
+        if (!q) return true;
+        return (row.rule + ' ' + row.message + ' ' + row.path + ' ' + row.endpoint).toLowerCase().includes(q);
+      });
+    }
+
+    function grouped(rows) {
+      if (state.groupBy === 'none') return [{ key: 'All issues', rows }];
+      const m = new Map();
+      for (const row of rows) {
+        const key = state.groupBy === 'rule' ? row.rule : (row.method + ' ' + row.endpoint);
+        if (!m.has(key)) m.set(key, []);
+        m.get(key).push(row);
+      }
+      return Array.from(m.entries()).map(([key, groupRows]) => ({ key, rows: groupRows }));
+    }
+
+    function renderBreakdown() {
+      const container = document.getElementById('breakdown');
+      if (!container) return;
+      if (!Array.isArray(DATA.categories) || DATA.categories.length === 0) {
+        container.innerHTML = '<div style="padding:12px 14px;font-size:12px;color:var(--text-3);">No category breakdown available for this report.</div>';
+        return;
+      }
+      container.innerHTML = DATA.categories.map((cat) => {
+        const total  = Number(cat.total || 0);
+        const passed = total === 0;
+        const pct    = Math.min(Number(cat.percentage || 0), 100);
+        const barW   = passed ? 100 : pct;
+        const catKey = esc(cat.viewIssuesFilter && cat.viewIssuesFilter.key || '');
+        const btn    = passed ? '' : '<button class="link-btn" data-cat="' + catKey + '">View issues</button>';
+        return '<div class="bucket ' + (passed ? 'pass' : '') + '">' +
+          '<div class="bucket-id">' + esc(cat.id || '') + '</div>' +
+          '<div class="bucket-title">' + esc(cat.label || '') + '</div>' +
+          (cat.description ? '<div class="bucket-desc">' + esc(cat.description) + '</div>' : '') +
+          '<div class="bucket-bar"><div class="bucket-bar-fill" style="width:' + barW + '%"></div></div>' +
+          '<div class="bucket-footer">' +
+            '<span class="bucket-stats">' + esc(total) + ' issue' + (total !== 1 ? 's' : '') + ' &bull; ' + esc(pct) + '%</span>' +
+            btn +
+          '</div>' +
+        '</div>';
+      }).join('');
+      container.querySelectorAll('[data-cat]').forEach((el) => {
+        el.addEventListener('click', () => {
+          state.breakdownKey = el.getAttribute('data-cat') || '';
+          const select = document.getElementById('breakdownFilter');
+          if (select) select.value = state.breakdownKey;
+          renderIssues();
+        });
+      });
+    }
+
+    function renderIssues() {
+      const rows = filteredRows();
+      if (!state.selectedId || !byId.has(state.selectedId) || !rows.find((r) => r.id === state.selectedId)) {
+        state.selectedId = rows.length > 0 ? rows[0].id : null;
+      }
+
+      const list   = document.getElementById('issueList');
+      const detail = document.getElementById('detailPane');
+      if (!list || !detail) return;
+
+      const groups = grouped(rows);
+      list.innerHTML = groups.map((group) => {
+        const items = group.rows.map((row) =>
+          '<button class="issue-btn sev-' + esc(row.severity) + ' ' + (state.selectedId === row.id ? 'active' : '') + '" data-id="' + esc(row.id) + '">' +
+            '<div class="issue-msg">' + esc(row.message) + '</div>' +
+            '<div class="issue-path">' + esc(row.path) + '</div>' +
+          '</button>'
+        ).join('');
+        return '<div>' +
+          (state.groupBy === 'none' ? '' : '<div class="group-header">' + esc(group.key) + ' <span style="opacity:.55;">(' + group.rows.length + ')</span></div>') +
+          items +
+        '</div>';
+      }).join('') || '<div style="padding:16px;font-size:12px;color:var(--text-3);">No issues match your filters.</div>';
+
+      list.querySelectorAll('[data-id]').forEach((el) => {
+        el.addEventListener('click', () => {
+          state.selectedId = el.getAttribute('data-id');
+          renderIssues();
+        });
+      });
+
+      const sel = state.selectedId ? byId.get(state.selectedId) : null;
+      if (!sel) {
+        detail.innerHTML = '<div class="detail-empty"><div class="detail-empty-icon">&#9741;</div><div>Select an issue to view details</div></div>';
+        return;
+      }
+
+      detail.innerHTML =
+        '<div class="detail-title">' + esc(sel.message) + '</div>' +
+        '<span class="badge ' + esc(sel.severity) + '">' + esc(sel.severity) + '</span>' +
+        '<hr class="detail-sep" />' +
+        field('Rule', '<code>' + esc(sel.rule) + '</code>') +
+        field('Endpoint', '<code>' + esc(sel.method + ' ' + sel.endpoint) + '</code>') +
+        field('Path', '<code>' + esc(sel.path) + '</code>') +
+        (sel.description ? field('Description', esc(sel.description)) : '') +
+        (sel.fixSuggestion
+          ? '<div class="fix-block"><div class="dfield-key">&#10003;&nbsp; Fix Suggestion</div><div class="dfield-val">' + esc(sel.fixSuggestion) + '</div></div>'
+          : '');
+    }
+
+    function bindControls() {
+      const filter = document.getElementById('breakdownFilter');
+      if (filter) {
+        const opts = ['<option value="">All categories</option>'].concat(
+          (Array.isArray(DATA.categories) ? DATA.categories : [])
+            .map((cat) => '<option value="' + esc(cat.viewIssuesFilter && cat.viewIssuesFilter.key || '') + '">' + esc(cat.label || cat.id || '') + '</option>')
+        );
+        filter.innerHTML = opts.join('');
+        filter.addEventListener('change', (e) => { state.breakdownKey = e.target.value || ''; renderIssues(); });
+      }
+
+      ['all', 'error', 'warn'].forEach((sev) => {
+        const el = document.getElementById('sev-' + sev);
+        if (!el) return;
+        el.addEventListener('click', () => {
+          state.severity = sev;
+          document.querySelectorAll('[data-sev]').forEach((btn) => btn.classList.remove('active'));
+          el.classList.add('active');
+          renderIssues();
+        });
+      });
+
+      const search = document.getElementById('search');
+      if (search) search.addEventListener('input', (e) => { state.search = e.target.value || ''; renderIssues(); });
+      const groupBy = document.getElementById('groupBy');
+      if (groupBy) groupBy.addEventListener('change', (e) => { state.groupBy = e.target.value || 'none'; renderIssues(); });
+    }
+
+    bindControls();
+    renderBreakdown();
+    renderIssues();
+  </script>
+</body>
+</html>

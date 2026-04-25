@@ -1,8 +1,10 @@
+const { generateReport } = require('../reports/generate-report');
+
 function mapSeverity(severityIndex) {
   return ['error', 'warn', 'info', 'hint'][severityIndex] || 'info';
 }
 
-function buildGovernanceSummary({ results, ruleset, buildAiReadinessSummary }) {
+function buildGovernanceSummary({ results, ruleset, rulesetMetadata, buildAiReadinessSummary }) {
   const severityRuleSets = {
     error: new Set(),
     warn: new Set(),
@@ -95,21 +97,43 @@ function buildGovernanceSummary({ results, ruleset, buildAiReadinessSummary }) {
     return acc;
   }, []);
 
+  const rulesetName =
+    (rulesetMetadata && typeof rulesetMetadata.name === 'string' && rulesetMetadata.name) || 'Governance Report';
+
+  const generatedReport = generateReport(rulesetName, {
+    score,
+    passedChecks: passedRuleCount,
+    totalChecks: totalRules,
+    violations,
+  });
+
+  // For AI readiness the report recomputes the score using the weighted harmonic mean
+  // of dimension scores (matching the extension).  Use that as the authoritative value.
+  const finalScore = generatedReport.overview.score;
+
   const response = {
     outputSchemaVersion: '1.0.0',
-    score,
+    score: finalScore,
     totalRuleCount: totalRules,
     passedRuleCount,
     failedRuleCount,
+    // Keep aliases used by extension-side contracts.
+    totalChecks: totalRules,
+    passedChecks: passedRuleCount,
+    failedChecks: failedRuleCount,
     violationSummary,
     violations,
     passedRules,
+    reportId: generatedReport.reportId,
+    report: generatedReport,
+    ...(rulesetMetadata ? { rulesetMetadata } : {}),
   };
 
   if (typeof buildAiReadinessSummary === 'function') {
     const summary = buildAiReadinessSummary(response);
     if (summary) {
       response.aiReadinessSummary = summary;
+      response.report.aiReadinessSummary = summary;
     }
   }
 

@@ -5,7 +5,8 @@
   "engines": {
     "node": ">=18"
   },
-  "main": "index.js",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "bin": {
     "wso2-spectral": "bin/wso2-spectral.js"
   },
