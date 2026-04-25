@@ -423,11 +423,12 @@ function buildHtmlReport(payload, metadata) {
     }
     .link-btn:hover { background: var(--accent-bg); border-color: var(--accent-lt); }
     .bucket-docs-link {
-      font-size: 11px; color: var(--text-3); text-decoration: none;
-      display: inline-flex; align-items: center; gap: 2px;
-      transition: color 0.12s;
+      font-size: 11px; font-weight: 500; color: var(--accent-lt); text-decoration: none;
+      display: inline-flex; align-items: center; gap: 3px;
+      border: 1px solid var(--border-2); border-radius: 4px; padding: 2px 8px;
+      transition: background 0.12s, border-color 0.12s;
     }
-    .bucket-docs-link:hover { color: var(--accent-lt); }
+    .bucket-docs-link:hover { background: var(--accent-bg); border-color: var(--accent-lt); }
 
     /* ── AI Readiness: summary strip ───────────────────────── */
     .ai-summary-strip {
@@ -525,31 +526,56 @@ function buildHtmlReport(payload, metadata) {
 
     /* ── Issue Explorer toolbar ─────────────────────────────── */
     .toolbar {
-      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
-      padding: 10px 16px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--border);
-      background: var(--surface-2);
+      background: var(--surface);
     }
-    .toolbar input, .toolbar select {
-      height: 30px;
-      border: 1px solid var(--border-2); border-radius: var(--r-sm);
-      padding: 0 10px;
-      background: var(--surface); color: var(--text);
-      font-size: 12px; font-family: inherit; outline: none;
+    .toolbar-sep { width: 1px; height: 20px; background: var(--border-2); flex-shrink: 0; }
+    /* Severity filter pills */
+    .sev-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      height: 32px; padding: 0 14px;
+      border: 1px solid var(--border-2); border-radius: 8px;
+      background: var(--surface-2); color: var(--text-2);
+      cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit;
+      transition: background 0.12s, color 0.12s, border-color 0.12s, box-shadow 0.12s;
+      user-select: none;
+    }
+    .sev-chip:hover { background: var(--surface-3); color: var(--text); border-color: var(--accent-lt); }
+    .sev-chip.active {
+      background: var(--surface-3); color: var(--text);
+      border-color: var(--accent-lt);
+      box-shadow: 0 0 0 1px var(--accent-lt);
+    }
+    .sev-chip-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    /* Custom styled select */
+    .toolbar-select {
+      height: 32px; padding: 0 28px 0 10px;
+      border: 1px solid var(--border-2); border-radius: 8px;
+      background-color: var(--surface-2);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
+      color: var(--text-2); font-size: 12px; font-family: inherit;
+      outline: none; appearance: none; cursor: pointer;
       transition: border-color 0.12s;
     }
-    .toolbar input:focus, .toolbar select:focus { border-color: var(--accent-lt); }
-    .toolbar input::placeholder { color: var(--text-3); }
-    .toolbar select option { background: var(--surface-2); }
-    .chip {
-      border: 1px solid var(--border-2); border-radius: var(--r-sm);
-      padding: 4px 11px; background: var(--surface);
-      cursor: pointer; font-size: 11px; font-weight: 600;
-      color: var(--text-2); font-family: inherit;
-      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    .toolbar-select:focus { border-color: var(--accent-lt); }
+    .toolbar-select option { background: var(--surface-2); }
+    /* Search with icon */
+    .search-wrap { position: relative; flex: 1; min-width: 160px; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; display: flex; }
+    .toolbar-search {
+      width: 100%; height: 32px;
+      padding: 0 10px 0 32px;
+      border: 1px solid var(--border-2); border-radius: 8px;
+      background: var(--surface-2); color: var(--text);
+      font-size: 12px; font-family: inherit; outline: none;
+      transition: border-color 0.12s, background 0.12s;
     }
-    .chip:hover { border-color: var(--accent-lt); color: var(--text); }
-    .chip.active { background: var(--accent-bg); color: var(--accent-lt); border-color: var(--accent); }
+    .toolbar-search:focus { border-color: var(--accent-lt); background: var(--surface); }
+    .toolbar-search::placeholder { color: var(--text-3); }
 
     /* ── Issue list / detail pane ───────────────────────────── */
     .issues-layout {
@@ -653,8 +679,11 @@ function buildHtmlReport(payload, metadata) {
       overflow-x: auto;
       font-family: ui-monospace, SFMono-Regular, monospace;
       font-size: 11px;
-      line-height: 1.55;
-      color: #d9defa;
+      line-height: 1.6;
+      color: var(--text-2);
+      background: var(--surface-3);
+      border-radius: var(--r-sm);
+      padding: 12px 14px;
     }
     .fix-block {
       background: rgba(16,185,129,0.07);
@@ -869,16 +898,21 @@ function buildHtmlReport(payload, metadata) {
       </div>
       <div class="ie-card">
         <div class="toolbar">
-          <button class="chip active" data-sev="all"   id="sev-all">All</button>
-          <button class="chip"        data-sev="error" id="sev-error">Errors</button>
-          <button class="chip"        data-sev="warn"  id="sev-warn">Warnings</button>
-          <select id="groupBy">
+          <button class="sev-chip active" data-sev="all"   id="sev-all">All</button>
+          <button class="sev-chip"        data-sev="error" id="sev-error"><span class="sev-chip-dot" style="background:var(--danger);"></span>Errors</button>
+          <button class="sev-chip"        data-sev="warn"  id="sev-warn"><span class="sev-chip-dot" style="background:var(--warn);"></span>Warnings</button>
+          <div class="toolbar-sep"></div>
+          <select id="groupBy" class="toolbar-select">
             <option value="none">No grouping</option>
             <option value="rule">Group by rule</option>
             <option value="endpoint">Group by endpoint</option>
           </select>
-          <select id="breakdownFilter"><option value="">All categories</option></select>
-          <input id="search" type="text" placeholder="Search rules, messages, paths…" style="flex:1;min-width:180px;" />
+          <select id="breakdownFilter" class="toolbar-select"><option value="">All categories</option></select>
+          <div class="toolbar-sep"></div>
+          <div class="search-wrap">
+            <span class="search-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+            <input id="search" class="toolbar-search" type="text" placeholder="Search rules, messages, paths…" />
+          </div>
         </div>
         <div class="issues-layout">
           <div class="issue-list" id="issueList"></div>
@@ -1168,10 +1202,9 @@ function buildHtmlReport(payload, metadata) {
       }
 
       detail.innerHTML =
-        '<div class="detail-title">' + esc(sel.message) + '</div>' +
+        '<div class="detail-title">' + esc(sel.rule) + '</div>' +
         '<span class="badge ' + esc(sel.severity) + '">' + esc(sel.severity) + '</span>' +
         '<hr class="detail-sep" />' +
-        field('Rule', '<code>' + esc(sel.rule) + '</code>') +
         field('Message', esc(sel.message)) +
         (sel.description ? field('Description', esc(sel.description)) : '') +
         (sel.fixSuggestion
