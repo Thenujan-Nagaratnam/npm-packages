@@ -2,6 +2,8 @@
 
 API Governor ships three built-in rulesets. Pass the ruleset ID to `--ruleset`.
 
+These packs implement **WSO2 API governance** rule families—the Spectral rules aligned with **WSO2 REST API Design Guidelines**, **WSO2 REST API AI Readiness Guidelines**, and **OWASP API Security** checks as used in **WSO2 API Manager** and similar products. This package bundles them so you can run the same style of governance locally or in CI without hosting on WSO2’s platform.
+
 ---
 
 ## `owasp` — OWASP API Security Top 10

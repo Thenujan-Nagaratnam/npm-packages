@@ -1,4 +1,9 @@
-# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026, WSO2 LLC. (http://www.wso2.com). All Rights Reserved.
+#
+# This software is the property of WSO2 LLC. and its suppliers, if any.
+# Dissemination of any information or reproduction of any material contained
+# herein in any form is strictly forbidden, unless permitted by WSO2 expressly.
+# You may not alter or remove any copyright or other notice from copies of this content.
 
 name: OWASP Top 10
 description: >-
@@ -7,8 +12,8 @@ description: >-
 ruleCategory: SPECTRAL
 ruleType: API_DEFINITION
 artifactType: REST_API
-documentationLink: "https://owasp.org/API-Security/"
-provider: API Governance
+documentationLink: "https://apim.docs.wso2.com/en/4.5.0/reference/governance/owasp-top-10/"
+provider: WSO2
 rulesetContent:
   rules:
     'owasp:api2:2023-no-http-basic':

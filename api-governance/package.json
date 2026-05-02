@@ -1,7 +1,7 @@
 {
   "name": "api-governance",
-  "version": "1.0.0",
-  "description": "API governance and quality reporting tool — lint OpenAPI specs against OWASP, REST, and AI Readiness rulesets",
+  "version": "0.9.0",
+  "description": "API governance CLI — Spectral lint & HTML/JSON reports using WSO2-style rulesets (OWASP API Security, REST design, AI readiness)",
   "engines": {
     "node": ">=18"
   },
@@ -25,9 +25,6 @@
     "utils",
     "rule-packs"
   ],
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "dependencies": {
     "@stoplight/spectral-core": "1.22.0",
     "@stoplight/spectral-formats": "1.8.2",

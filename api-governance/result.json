@@ -3004,6 +3004,6 @@
     "ruleCategory": "SPECTRAL",
     "ruleType": "API_DEFINITION",
     "artifactType": "REST_API",
-    "provider": "API Governance"
+    "provider": "WSO2"
   }
 }

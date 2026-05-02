@@ -23,6 +23,8 @@ npx api-governance --help
 
 ## Your First Lint Run
 
+Built-in rules follow **WSO2 API governance** conventions (OWASP, REST design, AI readiness) packaged as Spectral rulesets.
+
 ```bash
 # Lint against the OWASP Top 10 ruleset
 api-governance lint openapi.yaml --ruleset owasp
