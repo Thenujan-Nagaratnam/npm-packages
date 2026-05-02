@@ -10,7 +10,7 @@ const VALID_SPEC_PATH = path.join(FIXTURES_DIR, 'openapi-valid.yaml');
 const CUSTOM_RULESET_PATH = path.join(FIXTURES_DIR, 'custom-ruleset.yaml');
 const CUSTOM_FUNCTION_RULESET_PATH = path.join(FIXTURES_DIR, 'custom-function-ruleset.yaml');
 const CUSTOM_FUNCTIONS_PATH = path.join(FIXTURES_DIR, 'custom-functions.js');
-const CLI_PATH = path.join(ROOT_DIR, 'bin', 'wso2-spectral.js');
+const CLI_PATH = path.join(ROOT_DIR, 'bin', 'api-governance.js');
 const TEMP_OUTPUT_PATH = path.join(__dirname, 'tmp-output.json');
 
 const validSpecContent = fs.readFileSync(VALID_SPEC_PATH, 'utf8');
@@ -190,7 +190,7 @@ async function main() {
     const outcome = runCli(['--help']);
     assert.strictEqual(outcome.status, 0);
     assert.strictEqual(outcome.stderr.trim(), '');
-    assert.match(outcome.stdout, /wso2-spectral lint <document>/);
+    assert.match(outcome.stdout, /api-governance lint <document>/);
   });
 
   await test('CLI fails when required --ruleset is missing', async () => {

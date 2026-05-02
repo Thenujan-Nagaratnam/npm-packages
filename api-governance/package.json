@@ -1,20 +1,20 @@
 {
-  "name": "@wso2/wso2-spectral",
+  "name": "@wso2/api-governance",
   "version": "1.0.0",
-  "description": "Reusable Spectral validation result builder for API governance and AI readiness rulesets",
+  "description": "API governance and quality reporting tool — lint OpenAPI specs against OWASP, REST, and AI Readiness rulesets",
   "engines": {
     "node": ">=18"
   },
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "bin": {
-    "wso2-spectral": "bin/wso2-spectral.js"
+    "api-governance": "bin/api-governance.js"
   },
   "scripts": {
     "check:node": "node ./scripts/check-node-version.js",
     "build": "node -e \"console.log('No build step required')\"",
     "lint": "node -e \"console.log('No lint configured')\"",
-    "cli:help": "node ./bin/wso2-spectral.js --help",
+    "cli:help": "node ./bin/api-governance.js --help",
     "test": "node ./test/run-tests.js",
     "prepack": "npm run check:node"
   },

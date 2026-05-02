@@ -4,7 +4,7 @@ const major = Number(String(current).split('.')[0]);
 
 if (!Number.isFinite(major) || major < requiredMajor) {
   process.stderr.write(
-    `wso2-spectral requires Node.js >=${requiredMajor}. Detected: ${current}\n`,
+    `api-governance requires Node.js >=${requiredMajor}. Detected: ${current}\n`,
   );
   process.exit(1);
 }

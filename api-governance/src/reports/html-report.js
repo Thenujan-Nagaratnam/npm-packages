@@ -26,8 +26,7 @@ function filterOnclick(filter) {
 const SCORE_BANDS = [
   { min: 90, color: '#22c55e' },
   { min: 75, color: '#3b82f6' },
-  { min: 60, color: '#eab308' },
-  { min: 40, color: '#f97316' },
+  { min: 50, color: '#eab308' },
   { min: 0,  color: '#ef4444' },
 ];
 

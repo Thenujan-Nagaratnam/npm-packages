@@ -5,7 +5,7 @@
  *
  * Logic mirrors the api-designer extension's report-unifier.ts and rule-constants.ts.
  *
- * @module @wso2/wso2-spectral/reports/generate-report
+ * @module @wso2/api-governance/reports/generate-report
  */
 
 // ─── Severity penalty weights (mirrors AI_SEVERITY_PENALTY in api-designer) ──
@@ -758,13 +758,13 @@ function generateReport(rulesetName, input) {
     violationsById,
     overview: {
       score:        computedScore,
-      passedChecks: (input && input.passedChecks != null) ? input.passedChecks : 0,
-      totalChecks:  (input && input.totalChecks  != null) ? input.totalChecks  : 0,
+      passedChecks: (input && input.passedChecks != null) ? input.passedChecks : passedRules.length,
+      totalChecks:  (input && input.totalChecks  != null) ? input.totalChecks  : passedRules.length + new Set(vList.map((v) => v.rule)).size,
       metrics: [
         { id: 'errors',     label: 'Errors',               value: errors,         accent: 'error'   },
         { id: 'warnings',   label: 'Warnings',             value: warnings,       accent: 'warning' },
         { id: 'info',       label: 'Info',                 value: infos,          accent: 'info'    },
-        { id: 'operations', label: 'Operations affected',  value: endpointCount,  accent: 'info'    },
+        { id: 'endpoints',  label: 'Operations affected',  value: endpointCount,  accent: 'info'    },
       ],
     },
     breakdown: {

@@ -15,7 +15,7 @@ function ensureSupportedNodeVersion() {
 function printHelp() {
   console.log(`
 Usage:
-  wso2-spectral lint <document> [options]
+  api-governance lint <document> [options]
 
 Required:
   <document>                    OpenAPI document path (YAML/JSON).
@@ -152,7 +152,7 @@ async function run() {
     return;
   }
 
-  const { runSpectralValidation, buildHtmlReport } = require('../src');
+  const { runSpectralValidation, generateReport, buildHtmlReport } = require('../src');
 
   if (args.command && args.command !== 'lint') {
     throw new Error(`Unsupported command: ${args.command}`);
@@ -166,9 +166,6 @@ async function run() {
 
   const absoluteSpecPath = path.resolve(process.cwd(), args.specPath);
   const specContent = await fs.promises.readFile(absoluteSpecPath, 'utf8');
-  const bundled = resolveBundledRuleset(args.ruleset);
-  const rulesetId = bundled ? bundled.rulesetId : args.ruleset;
-  const rulesetFileUrl = bundled ? undefined : args.ruleset;
 
   if (args.reportFormat && !['html', 'json'].includes(args.reportFormat)) {
     throw new Error(`Unsupported report format: ${args.reportFormat}`);
@@ -176,27 +173,27 @@ async function run() {
   if (args.openReport && args.reportFormat !== 'html') {
     throw new Error('--open can only be used with --report html');
   }
-  const shouldRenderReport = Boolean(args.reportFormat);
-  const resolvedOutputFormat = shouldRenderReport
-    ? (args.reportFormat === 'html' ? 'summary' : 'report')
-    : args.outputFormat;
 
-  const result = await runSpectralValidation({
-    rulesetId,
-    specContent,
-    rulesetFileUrl,
-    rulesetContentPath: args.rulesetContentPath,
-    customFunctionsPath: args.customFunctionsPath,
-    gitRootPath: args.gitRootPath,
-    authToken: args.authToken,
-    outputFormat: resolvedOutputFormat,
-  });
+  // Determine ruleset arg: ID string for built-ins, options object for custom
+  const bundled = resolveBundledRuleset(args.ruleset);
+  const rulesetArg = bundled
+    ? args.ruleset
+    : {
+        rulesetFileUrl:      args.ruleset,
+        rulesetContentPath:  args.rulesetContentPath,
+        customFunctionsPath: args.customFunctionsPath,
+        gitRootPath:         args.gitRootPath,
+        authToken:           args.authToken,
+      };
 
-  if (shouldRenderReport && args.reportFormat === 'html') {
-    const html = buildHtmlReport(result, { specContent });
+  const result = await runSpectralValidation(absoluteSpecPath, rulesetArg);
+  const report  = generateReport(args.ruleset, result);
+
+  if (args.reportFormat === 'html') {
+    const html = buildHtmlReport({ report }, { specContent });
     const requestedPath = args.reportFilePath || args.outputPath;
     const shouldWriteFile = Boolean(requestedPath || args.openReport);
-    const outputPath = requestedPath || 'wso2-spectral-report.html';
+    const outputPath = requestedPath || 'api-governance-report.html';
 
     if (shouldWriteFile) {
       const absoluteReportPath = path.resolve(process.cwd(), outputPath);
@@ -210,7 +207,12 @@ async function run() {
     return;
   }
 
-  const output = JSON.stringify(result, null, args.pretty ? 2 : 0);
+  // JSON report or raw spectral output
+  const output = JSON.stringify(
+    args.reportFormat === 'json' ? report : result,
+    null,
+    args.pretty ? 2 : 0
+  );
   const requestedPath = args.reportFilePath || args.outputPath;
   if (requestedPath) {
     const absoluteOutputPath = path.resolve(process.cwd(), requestedPath);
@@ -242,6 +244,6 @@ run().catch((error) => {
     }
   }
   const message = details.length > 0 ? `\n${details.join('\n')}` : 'Unknown error';
-  console.error(`wso2-spectral: ${message}`);
+  console.error(`api-governance: ${message}`);
   process.exit(1);
 });
