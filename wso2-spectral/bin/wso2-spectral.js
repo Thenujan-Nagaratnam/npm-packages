@@ -211,8 +211,9 @@ async function run() {
   }
 
   const output = JSON.stringify(result, null, args.pretty ? 2 : 0);
-  if (args.outputPath) {
-    const absoluteOutputPath = path.resolve(process.cwd(), args.outputPath);
+  const requestedPath = args.reportFilePath || args.outputPath;
+  if (requestedPath) {
+    const absoluteOutputPath = path.resolve(process.cwd(), requestedPath);
     await fs.promises.writeFile(absoluteOutputPath, `${output}\n`, 'utf8');
     return;
   }

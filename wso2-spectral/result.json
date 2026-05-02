@@ -1,0 +1,3009 @@
+{
+  "reportId": "ai-readiness",
+  "report": {
+    "schemaVersion": "1",
+    "reportId": "ai-readiness",
+    "title": "WSO2 REST API AI Readiness Guidelines",
+    "violationsById": {
+      "ai-readiness-api-description:0": {
+        "id": "ai-readiness-api-description:0",
+        "rule": "ai-readiness-api-description",
+        "message": "API description must be present and at least 50 characters for AI readiness",
+        "description": "API must have a comprehensive description for AI understanding",
+        "fixSuggestion": "Expand `info.description` to at least 50 characters: scope, main resources, auth model, and links to external docs or portals.",
+        "severity": "warn",
+        "pathSegments": [
+          "info"
+        ],
+        "displayPath": "info",
+        "endpoint": "global",
+        "method": "GLOBAL",
+        "line": 2,
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 5
+          },
+          "end": {
+            "line": 4,
+            "character": 16
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-path-item-summary:1": {
+        "id": "ai-readiness-path-item-summary:1",
+        "rule": "ai-readiness-path-item-summary",
+        "message": "Path item should include a summary for better AI route understanding",
+        "description": "Path items should have summaries to provide route-level context",
+        "fixSuggestion": "Set `summary` on the path item to describe the resource or route group before drilling into per-method details.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello"
+        ],
+        "displayPath": "paths > /hello",
+        "endpoint": "/hello",
+        "method": "GLOBAL",
+        "line": 11,
+        "range": {
+          "start": {
+            "line": 10,
+            "character": 9
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "summaries"
+        ]
+      },
+      "ai-readiness-list-pagination-params:2": {
+        "id": "ai-readiness-list-pagination-params:2",
+        "rule": "ai-readiness-list-pagination-params",
+        "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets",
+        "description": "GET operations should support standard pagination parameters",
+        "fixSuggestion": "Add query parameters such as `limit` plus `cursor` or `page` (and document defaults and max) on list-style GETs.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get"
+        ],
+        "displayPath": "paths > /hello > get",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 12,
+        "range": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "pagination"
+        ]
+      },
+      "ai-readiness-operation-description:3": {
+        "id": "ai-readiness-operation-description:3",
+        "rule": "ai-readiness-operation-description",
+        "message": "Operation 'get' description must be present and at least 30 characters for AI readiness",
+        "description": "All operations must have a detailed description",
+        "fixSuggestion": "Write at least 30 characters in `description`: inputs, outcomes, idempotency, and notable errors or side effects.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get"
+        ],
+        "displayPath": "paths > /hello > get",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 12,
+        "range": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-operation-id:4": {
+        "id": "ai-readiness-operation-id:4",
+        "rule": "ai-readiness-operation-id",
+        "message": "Operation must have an operationId for AI readiness",
+        "description": "All operations must have an operationId for AI reference",
+        "fixSuggestion": "Set a unique `operationId` per operation for stable cross-references in code generators and agent prompts.",
+        "severity": "error",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get"
+        ],
+        "displayPath": "paths > /hello > get",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 12,
+        "range": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "operationIds"
+        ]
+      },
+      "ai-readiness-operation-tags:5": {
+        "id": "ai-readiness-operation-tags:5",
+        "rule": "ai-readiness-operation-tags",
+        "message": "Operation should have at least one tag for AI categorization",
+        "description": "All operations should have tags for AI categorization",
+        "fixSuggestion": "Add `tags` that reference your global `tags` list so operations group correctly in docs and AI context windows.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get"
+        ],
+        "displayPath": "paths > /hello > get",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 12,
+        "range": {
+          "start": {
+            "line": 11,
+            "character": 8
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-error-responses-4xx:6": {
+        "id": "ai-readiness-error-responses-4xx:6",
+        "rule": "ai-readiness-error-responses-4xx",
+        "message": "Operation must define at least one 4xx error response for AI error handling",
+        "description": "Operations must define 4xx error responses",
+        "fixSuggestion": "Document the client and auth failure cases you support (e.g. 400, 401, 403, 404, 422, 429) with bodies agents can parse.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get",
+          "responses"
+        ],
+        "displayPath": "paths > /hello > get > responses",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 14,
+        "range": {
+          "start": {
+            "line": 13,
+            "character": 16
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "errors"
+        ]
+      },
+      "ai-readiness-error-responses-5xx:7": {
+        "id": "ai-readiness-error-responses-5xx:7",
+        "rule": "ai-readiness-error-responses-5xx",
+        "message": "Operation should define at least one 5xx error response for AI error handling",
+        "description": "Operations should define 5xx error responses",
+        "fixSuggestion": "Add a `500` (or `502`/`503`/`504` as appropriate) response with a schema for generic or upstream failures.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get",
+          "responses"
+        ],
+        "displayPath": "paths > /hello > get > responses",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 14,
+        "range": {
+          "start": {
+            "line": 13,
+            "character": 16
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "errors"
+        ]
+      },
+      "ai-readiness-response-example:8": {
+        "id": "ai-readiness-response-example:8",
+        "rule": "ai-readiness-response-example",
+        "message": "Response should have an example for AI understanding",
+        "description": "Success responses should have examples",
+        "fixSuggestion": "Under each 2xx response media type, add `example` or `examples` for a representative success payload.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json"
+        ],
+        "displayPath": "paths > /hello > get > responses > 200 > content > application/json",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 18,
+        "range": {
+          "start": {
+            "line": 17,
+            "character": 29
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "examples"
+        ]
+      },
+      "ai-readiness-pagination-response-meta:9": {
+        "id": "ai-readiness-pagination-response-meta:9",
+        "rule": "ai-readiness-pagination-response-meta",
+        "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating",
+        "description": "List endpoint responses must include pagination metadata",
+        "fixSuggestion": "Expose at least one of `has_more`, `next_cursor`/`next_page`, or `total` in the JSON body schema for paginated lists.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/hello",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "schema"
+        ],
+        "displayPath": "paths > /hello > get > responses > 200 > content > application/json > schema",
+        "endpoint": "/hello",
+        "method": "GET",
+        "line": 19,
+        "range": {
+          "start": {
+            "line": 18,
+            "character": 21
+          },
+          "end": {
+            "line": 23,
+            "character": 42
+          }
+        },
+        "breakdownKeys": [
+          "pagination"
+        ]
+      },
+      "ai-readiness-path-item-summary:10": {
+        "id": "ai-readiness-path-item-summary:10",
+        "rule": "ai-readiness-path-item-summary",
+        "message": "Path item should include a summary for better AI route understanding",
+        "description": "Path items should have summaries to provide route-level context",
+        "fixSuggestion": "Set `summary` on the path item to describe the resource or route group before drilling into per-method details.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}"
+        ],
+        "displayPath": "paths > /users/{id}",
+        "endpoint": "/users/{id}",
+        "method": "GLOBAL",
+        "line": 26,
+        "range": {
+          "start": {
+            "line": 25,
+            "character": 14
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "summaries"
+        ]
+      },
+      "ai-readiness-list-pagination-params:11": {
+        "id": "ai-readiness-list-pagination-params:11",
+        "rule": "ai-readiness-list-pagination-params",
+        "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets",
+        "description": "GET operations should support standard pagination parameters",
+        "fixSuggestion": "Add query parameters such as `limit` plus `cursor` or `page` (and document defaults and max) on list-style GETs.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get"
+        ],
+        "displayPath": "paths > /users/{id} > get",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 27,
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "pagination"
+        ]
+      },
+      "ai-readiness-operation-description:12": {
+        "id": "ai-readiness-operation-description:12",
+        "rule": "ai-readiness-operation-description",
+        "message": "Operation 'get' description must be present and at least 30 characters for AI readiness",
+        "description": "All operations must have a detailed description",
+        "fixSuggestion": "Write at least 30 characters in `description`: inputs, outcomes, idempotency, and notable errors or side effects.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get"
+        ],
+        "displayPath": "paths > /users/{id} > get",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 27,
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-operation-id:13": {
+        "id": "ai-readiness-operation-id:13",
+        "rule": "ai-readiness-operation-id",
+        "message": "Operation must have an operationId for AI readiness",
+        "description": "All operations must have an operationId for AI reference",
+        "fixSuggestion": "Set a unique `operationId` per operation for stable cross-references in code generators and agent prompts.",
+        "severity": "error",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get"
+        ],
+        "displayPath": "paths > /users/{id} > get",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 27,
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "operationIds"
+        ]
+      },
+      "ai-readiness-operation-tags:14": {
+        "id": "ai-readiness-operation-tags:14",
+        "rule": "ai-readiness-operation-tags",
+        "message": "Operation should have at least one tag for AI categorization",
+        "description": "All operations should have tags for AI categorization",
+        "fixSuggestion": "Add `tags` that reference your global `tags` list so operations group correctly in docs and AI context windows.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get"
+        ],
+        "displayPath": "paths > /users/{id} > get",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 27,
+        "range": {
+          "start": {
+            "line": 26,
+            "character": 8
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-parameter-example:15": {
+        "id": "ai-readiness-parameter-example:15",
+        "rule": "ai-readiness-parameter-example",
+        "message": "Parameter '' should have an example for AI understanding",
+        "description": "Parameters should have examples for AI understanding",
+        "fixSuggestion": "Add `example` or `examples` on query, path, header, and cookie parameters so agents can send realistic values.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "parameters",
+          "0"
+        ],
+        "displayPath": "paths > /users/{id} > get > parameters > 0",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 30,
+        "range": {
+          "start": {
+            "line": 29,
+            "character": 10
+          },
+          "end": {
+            "line": 34,
+            "character": 25
+          }
+        },
+        "breakdownKeys": [
+          "examples"
+        ]
+      },
+      "ai-readiness-parameter-description:16": {
+        "id": "ai-readiness-parameter-description:16",
+        "rule": "ai-readiness-parameter-description",
+        "message": "Parameter '' description must be present and at least 15 characters for AI readiness",
+        "description": "All parameters must have meaningful descriptions",
+        "fixSuggestion": "Document each parameter: meaning, format, units, valid ranges, defaults, and when it is required — at least 15 characters.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "parameters",
+          "0",
+          "description"
+        ],
+        "displayPath": "paths > /users/{id} > get > parameters > 0 > description",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 33,
+        "range": {
+          "start": {
+            "line": 32,
+            "character": 23
+          },
+          "end": {
+            "line": 32,
+            "character": 30
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-error-responses-5xx:17": {
+        "id": "ai-readiness-error-responses-5xx:17",
+        "rule": "ai-readiness-error-responses-5xx",
+        "message": "Operation should define at least one 5xx error response for AI error handling",
+        "description": "Operations should define 5xx error responses",
+        "fixSuggestion": "Add a `500` (or `502`/`503`/`504` as appropriate) response with a schema for generic or upstream failures.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "responses"
+        ],
+        "displayPath": "paths > /users/{id} > get > responses",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 36,
+        "range": {
+          "start": {
+            "line": 35,
+            "character": 16
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "errors"
+        ]
+      },
+      "ai-readiness-response-description:18": {
+        "id": "ai-readiness-response-description:18",
+        "rule": "ai-readiness-response-description",
+        "message": "Response '200' description must be present and at least 20 characters for AI readiness",
+        "description": "All responses must have meaningful descriptions",
+        "fixSuggestion": "Add a `description` (≥20 chars) to each response code explaining when it is returned, what the body represents, and what the client should do.",
+        "severity": "error",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "responses",
+          "200"
+        ],
+        "displayPath": "paths > /users/{id} > get > responses > 200",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 37,
+        "range": {
+          "start": {
+            "line": 36,
+            "character": 14
+          },
+          "end": {
+            "line": 47,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      },
+      "ai-readiness-response-example:19": {
+        "id": "ai-readiness-response-example:19",
+        "rule": "ai-readiness-response-example",
+        "message": "Response should have an example for AI understanding",
+        "description": "Success responses should have examples",
+        "fixSuggestion": "Under each 2xx response media type, add `example` or `examples` for a representative success payload.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json"
+        ],
+        "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 40,
+        "range": {
+          "start": {
+            "line": 39,
+            "character": 29
+          },
+          "end": {
+            "line": 47,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "examples"
+        ]
+      },
+      "ai-readiness-pagination-response-meta:20": {
+        "id": "ai-readiness-pagination-response-meta:20",
+        "rule": "ai-readiness-pagination-response-meta",
+        "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating",
+        "description": "List endpoint responses must include pagination metadata",
+        "fixSuggestion": "Expose at least one of `has_more`, `next_cursor`/`next_page`, or `total` in the JSON body schema for paginated lists.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "responses",
+          "200",
+          "content",
+          "application/json",
+          "schema"
+        ],
+        "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json > schema",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 41,
+        "range": {
+          "start": {
+            "line": 40,
+            "character": 21
+          },
+          "end": {
+            "line": 47,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "pagination"
+        ]
+      },
+      "ai-readiness-error-response-content:21": {
+        "id": "ai-readiness-error-response-content:21",
+        "rule": "ai-readiness-error-response-content",
+        "message": "Error response '[404].content' must define response content so AI agents can parse failures consistently",
+        "description": "All error responses must define structured payload content",
+        "fixSuggestion": "For 4xx/5xx responses, add `content` with at least one media type so errors are not undocumented plain text.",
+        "severity": "warn",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "responses",
+          "404"
+        ],
+        "displayPath": "paths > /users/{id} > get > responses > 404",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 49,
+        "range": {
+          "start": {
+            "line": 48,
+            "character": 14
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "errors"
+        ]
+      },
+      "ai-readiness-response-description:22": {
+        "id": "ai-readiness-response-description:22",
+        "rule": "ai-readiness-response-description",
+        "message": "Response '404' description must be present and at least 20 characters for AI readiness",
+        "description": "All responses must have meaningful descriptions",
+        "fixSuggestion": "Add a `description` (≥20 chars) to each response code explaining when it is returned, what the body represents, and what the client should do.",
+        "severity": "error",
+        "pathSegments": [
+          "paths",
+          "/users/{id}",
+          "get",
+          "responses",
+          "404"
+        ],
+        "displayPath": "paths > /users/{id} > get > responses > 404",
+        "endpoint": "/users/{id}",
+        "method": "GET",
+        "line": 49,
+        "range": {
+          "start": {
+            "line": 48,
+            "character": 14
+          },
+          "end": {
+            "line": 49,
+            "character": 37
+          }
+        },
+        "breakdownKeys": [
+          "descriptions"
+        ]
+      }
+    },
+    "overview": {
+      "score": 79,
+      "passedChecks": 50,
+      "totalChecks": 64,
+      "metrics": [
+        {
+          "id": "errors",
+          "label": "Errors",
+          "value": 4,
+          "accent": "error"
+        },
+        {
+          "id": "warnings",
+          "label": "Warnings",
+          "value": 19,
+          "accent": "warning"
+        },
+        {
+          "id": "operations",
+          "label": "Operations affected",
+          "value": 2,
+          "accent": "info"
+        }
+      ]
+    },
+    "breakdown": {
+      "title": "AI Readiness Breakdown",
+      "categories": [
+        {
+          "id": "discovery",
+          "label": "Semantic Discovery",
+          "description": "Can AI agents find the right endpoint and understand its intent?",
+          "whyItMatters": "AI agents rely on summaries, descriptions, and stable operation identifiers to select the right tool for a task. Without them, agents must infer behavior through trial and error, leading to incorrect calls and hallucinated responses.",
+          "status": "failed",
+          "total": 12,
+          "passPercentage": 71,
+          "subBuckets": [
+            {
+              "id": "summaries",
+              "label": "Summaries",
+              "description": "Clear operation summaries help agents pick the right endpoint quickly.",
+              "status": "failed",
+              "total": 2,
+              "passPercentage": 75,
+              "errors": 0,
+              "warnings": 2,
+              "viewIssuesFilter": {
+                "key": "summaries",
+                "label": "Summaries"
+              }
+            },
+            {
+              "id": "descriptions",
+              "label": "Descriptions",
+              "description": "Detailed descriptions reduce ambiguity in agent execution flows.",
+              "status": "failed",
+              "total": 8,
+              "passPercentage": 72,
+              "errors": 2,
+              "warnings": 6,
+              "viewIssuesFilter": {
+                "key": "descriptions",
+                "label": "Descriptions"
+              }
+            },
+            {
+              "id": "operationIds",
+              "label": "Operation IDs",
+              "description": "Stable operation IDs improve deterministic tool calling for agents.",
+              "status": "failed",
+              "total": 2,
+              "passPercentage": 67,
+              "errors": 2,
+              "warnings": 0,
+              "viewIssuesFilter": {
+                "key": "operationIds",
+                "label": "Operation IDs"
+              }
+            }
+          ],
+          "viewIssuesFilter": {
+            "key": "discovery",
+            "label": "Semantic Discovery"
+          }
+        },
+        {
+          "id": "contract",
+          "label": "Contract Integrity",
+          "description": "Can AI agents construct valid requests and interpret responses without guessing?",
+          "whyItMatters": "Agents generate payloads based on schemas and examples. Ambiguous types, missing required fields, or absent examples cause invalid requests or misinterpretation of responses.",
+          "status": "failed",
+          "total": 7,
+          "passPercentage": 82,
+          "subBuckets": [
+            {
+              "id": "examples",
+              "label": "Examples",
+              "description": "Request and response examples help agents construct valid payloads.",
+              "status": "failed",
+              "total": 3,
+              "passPercentage": 80,
+              "errors": 0,
+              "warnings": 3,
+              "viewIssuesFilter": {
+                "key": "examples",
+                "label": "Examples"
+              }
+            },
+            {
+              "id": "typing",
+              "label": "Strict Typing",
+              "description": "Strong typing keeps agent-generated requests aligned with schema constraints.",
+              "status": "passed",
+              "total": 0,
+              "passPercentage": 100,
+              "errors": 0,
+              "warnings": 0,
+              "viewIssuesFilter": {
+                "key": "typing",
+                "label": "Strict Typing"
+              }
+            },
+            {
+              "id": "errors",
+              "label": "Responses",
+              "description": "Defined success and error responses help agents interpret outcomes.",
+              "status": "failed",
+              "total": 4,
+              "passPercentage": 67,
+              "errors": 0,
+              "warnings": 4,
+              "viewIssuesFilter": {
+                "key": "errors",
+                "label": "Responses"
+              }
+            }
+          ],
+          "viewIssuesFilter": {
+            "key": "contract",
+            "label": "Contract Integrity"
+          }
+        },
+        {
+          "id": "resilience",
+          "label": "Resilience & Recovery",
+          "description": "Can AI agents handle failures, rate limits, and large datasets gracefully?",
+          "whyItMatters": "Autonomous agents operate without human supervision. Error schemas enable self-correction, rate limit headers prevent hammering, and pagination metadata indicates when to stop iterating.",
+          "status": "failed",
+          "total": 4,
+          "passPercentage": 69,
+          "subBuckets": [
+            {
+              "id": "errorSemantics",
+              "label": "Error Semantics",
+              "description": "Structured, actionable error details for AI self-correction.",
+              "status": "passed",
+              "total": 0,
+              "passPercentage": 100,
+              "errors": 0,
+              "warnings": 0,
+              "viewIssuesFilter": {
+                "key": "errorSemantics",
+                "label": "Error Semantics"
+              }
+            },
+            {
+              "id": "headers",
+              "label": "Rate Limit Headers",
+              "description": "Rate limit and retry headers prevent unsafe autonomous request bursts.",
+              "status": "passed",
+              "total": 0,
+              "passPercentage": 100,
+              "errors": 0,
+              "warnings": 0,
+              "viewIssuesFilter": {
+                "key": "headers",
+                "label": "Rate Limit Headers"
+              }
+            },
+            {
+              "id": "pagination",
+              "label": "Pagination",
+              "description": "Pagination metadata helps agents iterate large datasets safely.",
+              "status": "failed",
+              "total": 4,
+              "passPercentage": 0,
+              "errors": 0,
+              "warnings": 4,
+              "viewIssuesFilter": {
+                "key": "pagination",
+                "label": "Pagination"
+              }
+            }
+          ],
+          "viewIssuesFilter": {
+            "key": "resilience",
+            "label": "Resilience & Recovery"
+          }
+        },
+        {
+          "id": "security",
+          "label": "Security & Integrity",
+          "description": "Is the API safe for autonomous agent access over the long term?",
+          "whyItMatters": "Agents cannot complete interactive OAuth flows. Undefined security risks unintended state changes. Idempotency prevents duplicate side-effects on retries.",
+          "status": "passed",
+          "total": 0,
+          "passPercentage": 100,
+          "subBuckets": [
+            {
+              "id": "security",
+              "label": "Agent Auth",
+              "description": "Explicit security requirements reduce risk in autonomous access.",
+              "status": "passed",
+              "total": 0,
+              "passPercentage": 100,
+              "errors": 0,
+              "warnings": 0,
+              "viewIssuesFilter": {
+                "key": "security",
+                "label": "Agent Auth"
+              }
+            },
+            {
+              "id": "idempotency",
+              "label": "Idempotency",
+              "description": "Idempotency protection avoids duplicate side effects on retries.",
+              "status": "passed",
+              "total": 0,
+              "passPercentage": 100,
+              "errors": 0,
+              "warnings": 0,
+              "viewIssuesFilter": {
+                "key": "idempotency",
+                "label": "Idempotency"
+              }
+            }
+          ],
+          "viewIssuesFilter": {
+            "key": "security",
+            "label": "Security & Integrity"
+          }
+        }
+      ]
+    },
+    "issueExplorer": {
+      "breakdownFilterOptions": [
+        {
+          "key": "summaries",
+          "label": "Summaries"
+        },
+        {
+          "key": "descriptions",
+          "label": "Descriptions"
+        },
+        {
+          "key": "operationIds",
+          "label": "Operation IDs"
+        },
+        {
+          "key": "examples",
+          "label": "Examples"
+        },
+        {
+          "key": "typing",
+          "label": "Strict Typing"
+        },
+        {
+          "key": "errors",
+          "label": "Responses"
+        },
+        {
+          "key": "errorSemantics",
+          "label": "Error Semantics"
+        },
+        {
+          "key": "headers",
+          "label": "Rate Limit Headers"
+        },
+        {
+          "key": "pagination",
+          "label": "Pagination"
+        },
+        {
+          "key": "security",
+          "label": "Agent Auth"
+        },
+        {
+          "key": "idempotency",
+          "label": "Idempotency"
+        }
+      ]
+    },
+    "aiReadinessSummary": {
+      "score": 79,
+      "aggregation": "weighted_harmonic_mean",
+      "dimensions": [
+        {
+          "key": "discovery",
+          "label": "Semantic Discovery",
+          "description": "Can AI agents find the right endpoint and understand its intent?",
+          "whyItMatters": "AI agents rely on summaries, descriptions, and stable operation identifiers to select the right tool for a task. Without them, agents must infer behavior through trial and error, leading to incorrect calls and hallucinated responses.",
+          "icon": "search",
+          "score": 71,
+          "aggregationWeight": 0.26,
+          "subBuckets": [
+            {
+              "key": "summaries",
+              "label": "Summaries",
+              "icon": "list-unordered",
+              "total": 4,
+              "filled": 3,
+              "percentage": 75,
+              "missing": [
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello"
+                  ],
+                  "displayPath": "paths > /hello",
+                  "message": "Path item should include a summary for better AI route understanding"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}"
+                  ],
+                  "displayPath": "paths > /users/{id}",
+                  "message": "Path item should include a summary for better AI route understanding"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "ai-readiness-operation-summary",
+                  "label": "Operation summary",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-callback-operation-summary",
+                  "label": "Callback operation summary",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-webhook-operation-summary",
+                  "label": "Webhook operation summary",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-path-item-summary",
+                  "label": "Path item summary",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                }
+              ]
+            },
+            {
+              "key": "descriptions",
+              "label": "Descriptions",
+              "icon": "note",
+              "total": 18,
+              "filled": 13,
+              "percentage": 72,
+              "missing": [
+                {
+                  "pathSegments": [
+                    "info"
+                  ],
+                  "displayPath": "info",
+                  "message": "API description must be present and at least 50 characters for AI readiness"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get"
+                  ],
+                  "displayPath": "paths > /hello > get",
+                  "message": "Operation 'get' description must be present and at least 30 characters for AI readiness"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get"
+                  ],
+                  "displayPath": "paths > /hello > get",
+                  "message": "Operation should have at least one tag for AI categorization"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get"
+                  ],
+                  "displayPath": "paths > /users/{id} > get",
+                  "message": "Operation 'get' description must be present and at least 30 characters for AI readiness"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get"
+                  ],
+                  "displayPath": "paths > /users/{id} > get",
+                  "message": "Operation should have at least one tag for AI categorization"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "parameters",
+                    "0",
+                    "description"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > parameters > 0 > description",
+                  "message": "Parameter '' description must be present and at least 15 characters for AI readiness"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "responses",
+                    "200"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > responses > 200",
+                  "message": "Response '200' description must be present and at least 20 characters for AI readiness"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "responses",
+                    "404"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > responses > 404",
+                  "message": "Response '404' description must be present and at least 20 characters for AI readiness"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "ai-readiness-api-description",
+                  "label": "Api description",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-server-description",
+                  "label": "Server description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-path-item-description",
+                  "label": "Path item description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-operation-description",
+                  "label": "Operation description",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-operation-tags",
+                  "label": "Operation tags",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-parameter-description",
+                  "label": "Parameter description",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-parameter-description-length",
+                  "label": "Parameter description length",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-request-body-description",
+                  "label": "Request body description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-response-description",
+                  "label": "Response description",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-error-response-description-length",
+                  "label": "Error response description length",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-description",
+                  "label": "Schema description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-description-length",
+                  "label": "Schema description length",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-title",
+                  "label": "Schema title",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-property-description",
+                  "label": "Schema property description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-enum-description",
+                  "label": "Schema enum description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-tags-description",
+                  "label": "Tags description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-tags-external-docs",
+                  "label": "Tags external docs",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-deprecation-notice",
+                  "label": "Deprecation notice",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            },
+            {
+              "key": "operationIds",
+              "label": "Operation IDs",
+              "icon": "symbol-method",
+              "total": 3,
+              "filled": 2,
+              "percentage": 67,
+              "missing": [
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get"
+                  ],
+                  "displayPath": "paths > /hello > get",
+                  "message": "Operation must have an operationId for AI readiness"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get"
+                  ],
+                  "displayPath": "paths > /users/{id} > get",
+                  "message": "Operation must have an operationId for AI readiness"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "ai-readiness-operation-id",
+                  "label": "Operation id",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-operation-id-casing",
+                  "label": "Operation id casing",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-operation-id-unique",
+                  "label": "Operation id unique",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "contract",
+          "label": "Contract Integrity",
+          "description": "Can AI agents construct valid requests and interpret responses without guessing?",
+          "whyItMatters": "Agents generate payloads based on schemas and examples. Ambiguous types, missing required fields, or absent examples cause agents to produce invalid requests or misinterpret response data.",
+          "icon": "symbol-interface",
+          "score": 82,
+          "aggregationWeight": 0.26,
+          "subBuckets": [
+            {
+              "key": "examples",
+              "label": "Examples",
+              "icon": "symbol-field",
+              "total": 10,
+              "filled": 8,
+              "percentage": 80,
+              "missing": [
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get",
+                    "responses",
+                    "200",
+                    "content",
+                    "application/json"
+                  ],
+                  "displayPath": "paths > /hello > get > responses > 200 > content > application/json",
+                  "message": "Response should have an example for AI understanding"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "parameters",
+                    "0"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > parameters > 0",
+                  "message": "Parameter '' should have an example for AI understanding"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "responses",
+                    "200",
+                    "content",
+                    "application/json"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json",
+                  "message": "Response should have an example for AI understanding"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "ai-readiness-parameter-example",
+                  "label": "Parameter example",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-path-parameter-example",
+                  "label": "Path parameter example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-parameter-content-example",
+                  "label": "Parameter content example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-path-parameter-content-example",
+                  "label": "Path parameter content example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-request-body-example",
+                  "label": "Request body example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-response-example",
+                  "label": "Response example",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-response-header-example",
+                  "label": "Response header example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-example",
+                  "label": "Schema example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-property-example",
+                  "label": "Schema property example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-component-header-example",
+                  "label": "Component header example",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            },
+            {
+              "key": "typing",
+              "label": "Strict Typing",
+              "icon": "symbol-parameter",
+              "total": 12,
+              "filled": 12,
+              "percentage": 100,
+              "missing": [],
+              "rules": [
+                {
+                  "key": "ai-readiness-request-body-schema-typed",
+                  "label": "Request body schema typed",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-request-body-schema-required",
+                  "label": "Request body schema required",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-response-schema-typed",
+                  "label": "Response schema typed",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-property-type",
+                  "label": "Schema property type",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-parameter-schema-type",
+                  "label": "Parameter schema type",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-string-format",
+                  "label": "Schema string format",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-no-empty-object",
+                  "label": "Schema no empty object",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-property-no-empty-object",
+                  "label": "Schema property no empty object",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-array-items-defined",
+                  "label": "Array items defined",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-array-property-items-defined",
+                  "label": "Array property items defined",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-schema-validation-constraints",
+                  "label": "Schema validation constraints",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-discriminator",
+                  "label": "Discriminator",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            },
+            {
+              "key": "errors",
+              "label": "Responses",
+              "icon": "error",
+              "total": 9,
+              "filled": 6,
+              "percentage": 67,
+              "missing": [
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get",
+                    "responses"
+                  ],
+                  "displayPath": "paths > /hello > get > responses",
+                  "message": "Operation must define at least one 4xx error response for AI error handling"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get",
+                    "responses"
+                  ],
+                  "displayPath": "paths > /hello > get > responses",
+                  "message": "Operation should define at least one 5xx error response for AI error handling"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "responses"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > responses",
+                  "message": "Operation should define at least one 5xx error response for AI error handling"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "responses",
+                    "404"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > responses > 404",
+                  "message": "Error response '[404].content' must define response content so AI agents can parse failures consistently"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "ai-readiness-success-response",
+                  "label": "Success response",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-success-response-content",
+                  "label": "Success response content",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-success-response-json-schema",
+                  "label": "Success response json schema",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-error-responses-4xx",
+                  "label": "Error responses 4xx",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-error-responses-5xx",
+                  "label": "Error responses 5xx",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-error-response-content",
+                  "label": "Error response content",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-error-response-json-schema",
+                  "label": "Error response json schema",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-response-content-type",
+                  "label": "Response content type",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-error-response-schema",
+                  "label": "Error response schema",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "resilience",
+          "label": "Resilience & Recovery",
+          "description": "Can AI agents handle failures, rate limits, and large datasets gracefully?",
+          "whyItMatters": "Autonomous agents operate without human supervision. Structured error schemas let agents self-correct, rate limit headers prevent hammering, and pagination metadata tells agents when to stop iterating.",
+          "icon": "refresh",
+          "score": 69,
+          "aggregationWeight": 0.24,
+          "subBuckets": [
+            {
+              "key": "errorSemantics",
+              "label": "Error Semantics",
+              "icon": "feedback",
+              "total": 4,
+              "filled": 4,
+              "percentage": 100,
+              "missing": [],
+              "rules": [
+                {
+                  "key": "ai-readiness-error-schema-fields",
+                  "label": "Error schema fields",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-error-schema-rfc7807",
+                  "label": "Error schema rfc7807",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-error-schema-details",
+                  "label": "Error schema details",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-error-schema-actionable",
+                  "label": "Error schema actionable",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            },
+            {
+              "key": "headers",
+              "label": "Rate Limit Headers",
+              "icon": "server-process",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100,
+              "missing": [],
+              "rules": [
+                {
+                  "key": "ai-readiness-429-rate-limit-headers",
+                  "label": "429 rate limit headers",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            },
+            {
+              "key": "pagination",
+              "label": "Pagination",
+              "icon": "list-flat",
+              "total": 2,
+              "filled": 0,
+              "percentage": 0,
+              "missing": [
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get"
+                  ],
+                  "displayPath": "paths > /hello > get",
+                  "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/hello",
+                    "get",
+                    "responses",
+                    "200",
+                    "content",
+                    "application/json",
+                    "schema"
+                  ],
+                  "displayPath": "paths > /hello > get > responses > 200 > content > application/json > schema",
+                  "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get"
+                  ],
+                  "displayPath": "paths > /users/{id} > get",
+                  "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"
+                },
+                {
+                  "pathSegments": [
+                    "paths",
+                    "/users/{id}",
+                    "get",
+                    "responses",
+                    "200",
+                    "content",
+                    "application/json",
+                    "schema"
+                  ],
+                  "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json > schema",
+                  "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"
+                }
+              ],
+              "rules": [
+                {
+                  "key": "ai-readiness-list-pagination-params",
+                  "label": "List pagination params",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                },
+                {
+                  "key": "ai-readiness-pagination-response-meta",
+                  "label": "Pagination response meta",
+                  "total": 1,
+                  "filled": 0,
+                  "percentage": 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "security",
+          "label": "Security & Integrity",
+          "description": "Is the API safe for autonomous agent access over the long term?",
+          "whyItMatters": "Agents cannot complete interactive browser-based OAuth flows. Undefined security requirements risk agents making unintended state changes. Idempotency support prevents duplicate side-effects when agents retry operations.",
+          "icon": "shield",
+          "score": 100,
+          "aggregationWeight": 0.24,
+          "subBuckets": [
+            {
+              "key": "security",
+              "label": "Agent Auth",
+              "icon": "shield",
+              "total": 5,
+              "filled": 5,
+              "percentage": 100,
+              "missing": [],
+              "rules": [
+                {
+                  "key": "ai-readiness-api-contact",
+                  "label": "Api contact",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-no-interactive-auth",
+                  "label": "No interactive auth",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-security-defined",
+                  "label": "Security defined",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-security-description",
+                  "label": "Security description",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                },
+                {
+                  "key": "ai-readiness-security-on-mutating-ops",
+                  "label": "Security on mutating ops",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            },
+            {
+              "key": "idempotency",
+              "label": "Idempotency",
+              "icon": "sync",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100,
+              "missing": [],
+              "rules": [
+                {
+                  "key": "ai-readiness-idempotency-key",
+                  "label": "Idempotency key",
+                  "total": 1,
+                  "filled": 1,
+                  "percentage": 100
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "buckets": [
+        {
+          "key": "summaries",
+          "label": "Summaries",
+          "icon": "list-unordered",
+          "total": 4,
+          "filled": 3,
+          "percentage": 75,
+          "missing": [
+            {
+              "pathSegments": [
+                "paths",
+                "/hello"
+              ],
+              "displayPath": "paths > /hello",
+              "message": "Path item should include a summary for better AI route understanding"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}"
+              ],
+              "displayPath": "paths > /users/{id}",
+              "message": "Path item should include a summary for better AI route understanding"
+            }
+          ],
+          "rules": [
+            {
+              "key": "ai-readiness-operation-summary",
+              "label": "Operation summary",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-callback-operation-summary",
+              "label": "Callback operation summary",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-webhook-operation-summary",
+              "label": "Webhook operation summary",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-path-item-summary",
+              "label": "Path item summary",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            }
+          ]
+        },
+        {
+          "key": "descriptions",
+          "label": "Descriptions",
+          "icon": "note",
+          "total": 18,
+          "filled": 13,
+          "percentage": 72,
+          "missing": [
+            {
+              "pathSegments": [
+                "info"
+              ],
+              "displayPath": "info",
+              "message": "API description must be present and at least 50 characters for AI readiness"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get"
+              ],
+              "displayPath": "paths > /hello > get",
+              "message": "Operation 'get' description must be present and at least 30 characters for AI readiness"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get"
+              ],
+              "displayPath": "paths > /hello > get",
+              "message": "Operation should have at least one tag for AI categorization"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get"
+              ],
+              "displayPath": "paths > /users/{id} > get",
+              "message": "Operation 'get' description must be present and at least 30 characters for AI readiness"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get"
+              ],
+              "displayPath": "paths > /users/{id} > get",
+              "message": "Operation should have at least one tag for AI categorization"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "parameters",
+                "0",
+                "description"
+              ],
+              "displayPath": "paths > /users/{id} > get > parameters > 0 > description",
+              "message": "Parameter '' description must be present and at least 15 characters for AI readiness"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "responses",
+                "200"
+              ],
+              "displayPath": "paths > /users/{id} > get > responses > 200",
+              "message": "Response '200' description must be present and at least 20 characters for AI readiness"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "responses",
+                "404"
+              ],
+              "displayPath": "paths > /users/{id} > get > responses > 404",
+              "message": "Response '404' description must be present and at least 20 characters for AI readiness"
+            }
+          ],
+          "rules": [
+            {
+              "key": "ai-readiness-api-description",
+              "label": "Api description",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-server-description",
+              "label": "Server description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-path-item-description",
+              "label": "Path item description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-operation-description",
+              "label": "Operation description",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-operation-tags",
+              "label": "Operation tags",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-parameter-description",
+              "label": "Parameter description",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-parameter-description-length",
+              "label": "Parameter description length",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-request-body-description",
+              "label": "Request body description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-response-description",
+              "label": "Response description",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-error-response-description-length",
+              "label": "Error response description length",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-description",
+              "label": "Schema description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-description-length",
+              "label": "Schema description length",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-title",
+              "label": "Schema title",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-property-description",
+              "label": "Schema property description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-enum-description",
+              "label": "Schema enum description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-tags-description",
+              "label": "Tags description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-tags-external-docs",
+              "label": "Tags external docs",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-deprecation-notice",
+              "label": "Deprecation notice",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "operationIds",
+          "label": "Operation IDs",
+          "icon": "symbol-method",
+          "total": 3,
+          "filled": 2,
+          "percentage": 67,
+          "missing": [
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get"
+              ],
+              "displayPath": "paths > /hello > get",
+              "message": "Operation must have an operationId for AI readiness"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get"
+              ],
+              "displayPath": "paths > /users/{id} > get",
+              "message": "Operation must have an operationId for AI readiness"
+            }
+          ],
+          "rules": [
+            {
+              "key": "ai-readiness-operation-id",
+              "label": "Operation id",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-operation-id-casing",
+              "label": "Operation id casing",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-operation-id-unique",
+              "label": "Operation id unique",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "examples",
+          "label": "Examples",
+          "icon": "symbol-field",
+          "total": 10,
+          "filled": 8,
+          "percentage": 80,
+          "missing": [
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get",
+                "responses",
+                "200",
+                "content",
+                "application/json"
+              ],
+              "displayPath": "paths > /hello > get > responses > 200 > content > application/json",
+              "message": "Response should have an example for AI understanding"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "parameters",
+                "0"
+              ],
+              "displayPath": "paths > /users/{id} > get > parameters > 0",
+              "message": "Parameter '' should have an example for AI understanding"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "responses",
+                "200",
+                "content",
+                "application/json"
+              ],
+              "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json",
+              "message": "Response should have an example for AI understanding"
+            }
+          ],
+          "rules": [
+            {
+              "key": "ai-readiness-parameter-example",
+              "label": "Parameter example",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-path-parameter-example",
+              "label": "Path parameter example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-parameter-content-example",
+              "label": "Parameter content example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-path-parameter-content-example",
+              "label": "Path parameter content example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-request-body-example",
+              "label": "Request body example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-response-example",
+              "label": "Response example",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-response-header-example",
+              "label": "Response header example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-example",
+              "label": "Schema example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-property-example",
+              "label": "Schema property example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-component-header-example",
+              "label": "Component header example",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "errors",
+          "label": "Responses",
+          "icon": "error",
+          "total": 9,
+          "filled": 6,
+          "percentage": 67,
+          "missing": [
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get",
+                "responses"
+              ],
+              "displayPath": "paths > /hello > get > responses",
+              "message": "Operation must define at least one 4xx error response for AI error handling"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get",
+                "responses"
+              ],
+              "displayPath": "paths > /hello > get > responses",
+              "message": "Operation should define at least one 5xx error response for AI error handling"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "responses"
+              ],
+              "displayPath": "paths > /users/{id} > get > responses",
+              "message": "Operation should define at least one 5xx error response for AI error handling"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "responses",
+                "404"
+              ],
+              "displayPath": "paths > /users/{id} > get > responses > 404",
+              "message": "Error response '[404].content' must define response content so AI agents can parse failures consistently"
+            }
+          ],
+          "rules": [
+            {
+              "key": "ai-readiness-success-response",
+              "label": "Success response",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-success-response-content",
+              "label": "Success response content",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-success-response-json-schema",
+              "label": "Success response json schema",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-error-responses-4xx",
+              "label": "Error responses 4xx",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-error-responses-5xx",
+              "label": "Error responses 5xx",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-error-response-content",
+              "label": "Error response content",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-error-response-json-schema",
+              "label": "Error response json schema",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-response-content-type",
+              "label": "Response content type",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-error-response-schema",
+              "label": "Error response schema",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "typing",
+          "label": "Strict Typing",
+          "icon": "symbol-parameter",
+          "total": 12,
+          "filled": 12,
+          "percentage": 100,
+          "missing": [],
+          "rules": [
+            {
+              "key": "ai-readiness-request-body-schema-typed",
+              "label": "Request body schema typed",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-request-body-schema-required",
+              "label": "Request body schema required",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-response-schema-typed",
+              "label": "Response schema typed",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-property-type",
+              "label": "Schema property type",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-parameter-schema-type",
+              "label": "Parameter schema type",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-string-format",
+              "label": "Schema string format",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-no-empty-object",
+              "label": "Schema no empty object",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-property-no-empty-object",
+              "label": "Schema property no empty object",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-array-items-defined",
+              "label": "Array items defined",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-array-property-items-defined",
+              "label": "Array property items defined",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-schema-validation-constraints",
+              "label": "Schema validation constraints",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-discriminator",
+              "label": "Discriminator",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "errorSemantics",
+          "label": "Error Semantics",
+          "icon": "feedback",
+          "total": 4,
+          "filled": 4,
+          "percentage": 100,
+          "missing": [],
+          "rules": [
+            {
+              "key": "ai-readiness-error-schema-fields",
+              "label": "Error schema fields",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-error-schema-rfc7807",
+              "label": "Error schema rfc7807",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-error-schema-details",
+              "label": "Error schema details",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-error-schema-actionable",
+              "label": "Error schema actionable",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "headers",
+          "label": "Rate Limit Headers",
+          "icon": "server-process",
+          "total": 1,
+          "filled": 1,
+          "percentage": 100,
+          "missing": [],
+          "rules": [
+            {
+              "key": "ai-readiness-429-rate-limit-headers",
+              "label": "429 rate limit headers",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "pagination",
+          "label": "Pagination",
+          "icon": "list-flat",
+          "total": 2,
+          "filled": 0,
+          "percentage": 0,
+          "missing": [
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get"
+              ],
+              "displayPath": "paths > /hello > get",
+              "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/hello",
+                "get",
+                "responses",
+                "200",
+                "content",
+                "application/json",
+                "schema"
+              ],
+              "displayPath": "paths > /hello > get > responses > 200 > content > application/json > schema",
+              "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get"
+              ],
+              "displayPath": "paths > /users/{id} > get",
+              "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"
+            },
+            {
+              "pathSegments": [
+                "paths",
+                "/users/{id}",
+                "get",
+                "responses",
+                "200",
+                "content",
+                "application/json",
+                "schema"
+              ],
+              "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json > schema",
+              "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"
+            }
+          ],
+          "rules": [
+            {
+              "key": "ai-readiness-list-pagination-params",
+              "label": "List pagination params",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            },
+            {
+              "key": "ai-readiness-pagination-response-meta",
+              "label": "Pagination response meta",
+              "total": 1,
+              "filled": 0,
+              "percentage": 0
+            }
+          ]
+        },
+        {
+          "key": "security",
+          "label": "Agent Auth",
+          "icon": "shield",
+          "total": 5,
+          "filled": 5,
+          "percentage": 100,
+          "missing": [],
+          "rules": [
+            {
+              "key": "ai-readiness-api-contact",
+              "label": "Api contact",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-no-interactive-auth",
+              "label": "No interactive auth",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-security-defined",
+              "label": "Security defined",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-security-description",
+              "label": "Security description",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            },
+            {
+              "key": "ai-readiness-security-on-mutating-ops",
+              "label": "Security on mutating ops",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        },
+        {
+          "key": "idempotency",
+          "label": "Idempotency",
+          "icon": "sync",
+          "total": 1,
+          "filled": 1,
+          "percentage": 100,
+          "missing": [],
+          "rules": [
+            {
+              "key": "ai-readiness-idempotency-key",
+              "label": "Idempotency key",
+              "total": 1,
+              "filled": 1,
+              "percentage": 100
+            }
+          ]
+        }
+      ],
+      "validation": {
+        "violations": [
+          {
+            "pathSegments": [
+              "info"
+            ],
+            "displayPath": "info",
+            "message": "API description must be present and at least 50 characters for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello"
+            ],
+            "displayPath": "paths > /hello",
+            "message": "Path item should include a summary for better AI route understanding"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get"
+            ],
+            "displayPath": "paths > /hello > get",
+            "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get"
+            ],
+            "displayPath": "paths > /hello > get",
+            "message": "Operation 'get' description must be present and at least 30 characters for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get"
+            ],
+            "displayPath": "paths > /hello > get",
+            "message": "Operation must have an operationId for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get"
+            ],
+            "displayPath": "paths > /hello > get",
+            "message": "Operation should have at least one tag for AI categorization"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get",
+              "responses"
+            ],
+            "displayPath": "paths > /hello > get > responses",
+            "message": "Operation must define at least one 4xx error response for AI error handling"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get",
+              "responses"
+            ],
+            "displayPath": "paths > /hello > get > responses",
+            "message": "Operation should define at least one 5xx error response for AI error handling"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get",
+              "responses",
+              "200",
+              "content",
+              "application/json"
+            ],
+            "displayPath": "paths > /hello > get > responses > 200 > content > application/json",
+            "message": "Response should have an example for AI understanding"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/hello",
+              "get",
+              "responses",
+              "200",
+              "content",
+              "application/json",
+              "schema"
+            ],
+            "displayPath": "paths > /hello > get > responses > 200 > content > application/json > schema",
+            "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}"
+            ],
+            "displayPath": "paths > /users/{id}",
+            "message": "Path item should include a summary for better AI route understanding"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get"
+            ],
+            "displayPath": "paths > /users/{id} > get",
+            "message": "GET operation should declare pagination parameters (cursor/page and limit) for AI agent iteration over large result sets"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get"
+            ],
+            "displayPath": "paths > /users/{id} > get",
+            "message": "Operation 'get' description must be present and at least 30 characters for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get"
+            ],
+            "displayPath": "paths > /users/{id} > get",
+            "message": "Operation must have an operationId for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get"
+            ],
+            "displayPath": "paths > /users/{id} > get",
+            "message": "Operation should have at least one tag for AI categorization"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "parameters",
+              "0"
+            ],
+            "displayPath": "paths > /users/{id} > get > parameters > 0",
+            "message": "Parameter '' should have an example for AI understanding"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "parameters",
+              "0",
+              "description"
+            ],
+            "displayPath": "paths > /users/{id} > get > parameters > 0 > description",
+            "message": "Parameter '' description must be present and at least 15 characters for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses"
+            ],
+            "displayPath": "paths > /users/{id} > get > responses",
+            "message": "Operation should define at least one 5xx error response for AI error handling"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses",
+              "200"
+            ],
+            "displayPath": "paths > /users/{id} > get > responses > 200",
+            "message": "Response '200' description must be present and at least 20 characters for AI readiness"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses",
+              "200",
+              "content",
+              "application/json"
+            ],
+            "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json",
+            "message": "Response should have an example for AI understanding"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses",
+              "200",
+              "content",
+              "application/json",
+              "schema"
+            ],
+            "displayPath": "paths > /users/{id} > get > responses > 200 > content > application/json > schema",
+            "message": "GET list operation response schema should include pagination metadata (has_more, next_cursor, or total) so AI agents know when to stop paginating"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses",
+              "404"
+            ],
+            "displayPath": "paths > /users/{id} > get > responses > 404",
+            "message": "Error response '[404].content' must define response content so AI agents can parse failures consistently"
+          },
+          {
+            "pathSegments": [
+              "paths",
+              "/users/{id}",
+              "get",
+              "responses",
+              "404"
+            ],
+            "displayPath": "paths > /users/{id} > get > responses > 404",
+            "message": "Response '404' description must be present and at least 20 characters for AI readiness"
+          }
+        ]
+      }
+    }
+  },
+  "metadata": {
+    "name": "WSO2 REST API AI Readiness Guidelines",
+    "description": "This ruleset ensures that REST APIs are well-documented and structured to be easily understood and utilized by AI systems. It checks for comprehensive descriptions, examples, and proper structuring of API components to enhance AI readiness.",
+    "ruleCategory": "SPECTRAL",
+    "ruleType": "API_DEFINITION",
+    "artifactType": "REST_API",
+    "provider": "WSO2"
+  }
+}

@@ -232,6 +232,34 @@ async function main() {
     fs.unlinkSync(TEMP_OUTPUT_PATH);
   });
 
+  await test('CLI writes report output file when --report json and --report-file are provided', async () => {
+    if (fs.existsSync(TEMP_OUTPUT_PATH)) {
+      fs.unlinkSync(TEMP_OUTPUT_PATH);
+    }
+
+    const outcome = runCli([
+      'lint',
+      VALID_SPEC_PATH,
+      '--ruleset',
+      'owasp',
+      '--report',
+      'json',
+      '--report-file',
+      TEMP_OUTPUT_PATH,
+      '--pretty',
+    ]);
+
+    assert.strictEqual(outcome.status, 0);
+    assert.strictEqual(outcome.stderr.trim(), '');
+    assert.strictEqual(fs.existsSync(TEMP_OUTPUT_PATH), true);
+
+    const content = JSON.parse(fs.readFileSync(TEMP_OUTPUT_PATH, 'utf8'));
+    assert.strictEqual(content.reportId, 'owasp');
+    assert.ok(content.report);
+
+    fs.unlinkSync(TEMP_OUTPUT_PATH);
+  });
+
   await test('CLI supports --functions for external custom functions', async () => {
     const outcome = runCli([
       'lint',

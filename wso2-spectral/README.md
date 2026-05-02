@@ -74,6 +74,8 @@ wso2-spectral lint ./openapi.yaml --ruleset ./my-ruleset.yaml --pretty
 - `--pretty`
 - `--help`
 
+When `--report json` or `--summary` is used, `--report-file` can be used to write the JSON output to disk.
+
 ## Library usage
 
 ```js

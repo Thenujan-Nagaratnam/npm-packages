@@ -87,7 +87,7 @@
     .grade-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-top: 3px solid #38BDF8;
+      border-top: 3px solid #3b82f6;
       border-radius: var(--r);
       padding: 20px 24px;
       text-align: center;
@@ -100,7 +100,7 @@
     }
     .grade-letter {
       font-size: 58px; font-weight: 900; line-height: 1;
-      color: #38BDF8;
+      color: #3b82f6;
       font-family: ui-monospace, SFMono-Regular, monospace;
     }
     .grade-score {
@@ -448,9 +448,9 @@
         <h1 style="font-size:22px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:4px;">WSO2 REST API AI Readiness Guidelines</h1>
         <div style="font-size:11px;color:var(--text-3);margin-bottom:14px;">Generated&nbsp;2026-04-25T13:17:25.286Z</div>
         <div class="metrics-grid">
-          <div class="metric-card" style="border-top:3px solid #38BDF8;">
+          <div class="metric-card" style="border-top:3px solid #3b82f6;">
             <div class="metric-label">Score</div>
-            <div class="metric-value" style="color:#38BDF8;">83<span style="font-size:14px;font-weight:600;color:var(--text-3);margin-left:4px;">/100</span></div>
+            <div class="metric-value" style="color:#3b82f6;">83<span style="font-size:14px;font-weight:600;color:var(--text-3);margin-left:4px;">/100</span></div>
           </div>
           <div class="metric-card">
             <div class="metric-label">Passed Checks</div>
@@ -512,11 +512,11 @@
     const byId = new Map(DATA.rows.map((row) => [row.id, row]));
 
     function scoreColor(pct) {
-      if (pct >= 90) return '#10B981';
-      if (pct >= 75) return '#38BDF8';
-      if (pct >= 60) return '#EAB308';
-      if (pct >= 40) return '#F97316';
-      return '#F43F5E';
+      if (pct >= 90) return 'var(--vscode-testing-iconPassed, #22c55e)';
+      if (pct >= 75) return '#3b82f6';
+      if (pct >= 60) return 'var(--vscode-editorWarning-foreground)';
+      if (pct >= 40) return '#f97316';
+      return 'var(--vscode-errorForeground)';
     }
 
     function esc(v) {

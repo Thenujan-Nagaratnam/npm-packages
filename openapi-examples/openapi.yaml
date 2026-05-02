@@ -13,7 +13,7 @@ paths:
       summary: Say hello
       responses:
         '200':
-          description: Successful response
+          description: Successful res kanska ponse
           content:
             application/json:
               schema:

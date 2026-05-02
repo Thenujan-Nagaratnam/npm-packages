@@ -20,13 +20,15 @@ export interface ValidationFinding {
  */
 export interface GenerateReportInput {
   violations?: ValidationFinding[];
+  /** Rules that passed (used to improve scoring accuracy for OWASP/REST). */
+  passedRules?: Array<{ rule: string }>;
   score?: number;
   passedChecks?: number;
   totalChecks?: number;
 }
 
 /**
- * Distinguishes AI readiness vs OWASP vs WSO2 REST in the generated payload (`reportId` on the result).
+ * Distinguishes AI readiness vs OWASP vs WSO2 REST in the generated payload (`reportId`).
  */
 export type ReportKind = 'ai-readiness' | 'owasp' | 'rest-api-readiness';
 
@@ -50,11 +52,28 @@ export interface ReportIssue {
     start: { line: number; character: number };
     end: { line: number; character: number };
   };
+  /** Dimension key + sub-bucket key for this violation (used by breakdown filters). */
   breakdownKeys: string[];
 }
 
 /**
- * One category row under `breakdown.categories` (OWASP or WSO2 theme).
+ * Sub-bucket inside an AI Readiness dimension category.
+ */
+export interface ReportSubBucket {
+  id: string;
+  label: string;
+  description?: string;
+  /** Penalty-based pass percentage (0–100). */
+  percentage: number;
+  total: number;
+  errors: number;
+  warnings: number;
+  infos: number;
+  viewIssuesFilter: { key: string; label: string };
+}
+
+/**
+ * One category row under `breakdown.categories`.
  */
 export interface BreakdownCategory {
   id: string;
@@ -64,16 +83,20 @@ export interface BreakdownCategory {
   total: number;
   errors: number;
   warnings: number;
+  infos: number;
+  /** Penalty-based pass percentage (0–100). */
   percentage: number;
   affectedEndpoints: number;
   docsUrl?: string;
   viewIssuesFilter: { key: string; label: string };
+  /** AI Readiness: one entry per sub-bucket (summaries, descriptions, …). */
+  subBuckets?: ReportSubBucket[];
+  /** REST Compliance: top 2 rules by violation count. */
   topRules?: string[];
 }
 
 /**
  * Full report object returned from {@link generateReport}.
- * (The `reportId` field name is kept for compatibility with API Designer’s RPC model.)
  */
 export interface GeneratedReport {
   schemaVersion: '1';
@@ -87,30 +110,32 @@ export interface GeneratedReport {
     metrics: Array<{
       id: string;
       label: string;
-      value: number | string;
-      hint?: string;
+      value: number;
       accent?: 'success' | 'error' | 'warning' | 'info' | 'neutral';
     }>;
   };
-  breakdown: { title: string; categories: BreakdownCategory[] };
-  issueExplorer: { breakdownFilterOptions: Array<{ key: string; label: string }> };
-  aiReadinessSummary?: unknown;
+  breakdown: {
+    title: string;
+    subtitle: string;
+    categories: BreakdownCategory[];
+  };
+  issueExplorer: {
+    title: string;
+    subtitle: string;
+    breakdownFilterOptions: Array<{ key: string; label: string }>;
+  };
 }
 
-export const OWASP_CATEGORIES: ReadonlyArray<{ key: string; label: string }>;
-export const WSO2_THEMES: ReadonlyArray<{
-  id: string;
-  title: string;
-  description: string;
-  keywords: string[];
-}>;
-
-/** Guess report type from the ruleset’s display name (e.g. “OWASP …” → `owasp`). */
+/** Guess report type from the ruleset's display name (e.g. "OWASP …" → `owasp`). */
 export function getReportKind(rulesetName: string): ReportKind;
 
 /**
  * Build the full analyze/governance report from raw validation output.
  * @param rulesetName - Ruleset display name; used to choose report type and for `title`
- * @param input - Scores and violation list from your Spectral (or similar) run
+ * @param input - Scores, passed rules, and violation list from your Spectral (or similar) run
  */
 export function generateReport(rulesetName: string, input: GenerateReportInput): GeneratedReport;
+
+export const OWASP_CATEGORIES: ReadonlyArray<{ key: string; label: string; docsUrl?: string }>;
+export const AI_RULE_CATEGORY: Record<string, string>;
+export const AI_CATEGORIES: ReadonlyArray<{ id: string; label: string; description: string }>;
