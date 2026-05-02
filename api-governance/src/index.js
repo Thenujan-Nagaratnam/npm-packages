@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { BUNDLED_RULESETS, resolveBundledRuleset } = require('./constants/bundled-rulesets');
 const { runSpectralValidation: _runSpectralValidation } = require('./core/validate');
 const { constructRulesetPath } = require('./core/ruleset-loader');
@@ -6,6 +7,7 @@ const { buildHtmlReport } = require('./reports/html-report');
 const {
   generateReport: _generateReport,
   getReportKind,
+  getReportKind: _getReportKind,
   OWASP_CATEGORIES,
   REST_COMPLIANCE_THEMES,
 } = require('./reports/generate-report');
@@ -23,7 +25,14 @@ const {
  *   });
  */
 async function runSpectralValidation(specPath, rulesetIdOrOptions) {
-  const specContent = fs.readFileSync(specPath, 'utf8');
+  if (!specPath || typeof specPath !== 'string') {
+    throw new Error('specPath must be a non-empty string');
+  }
+  const absoluteSpecPath = path.resolve(specPath);
+  if (!fs.existsSync(absoluteSpecPath)) {
+    throw new Error(`OpenAPI document not found: ${absoluteSpecPath}`);
+  }
+  const specContent = fs.readFileSync(absoluteSpecPath, 'utf8');
 
   // Built-in shorthand: runSpectralValidation(specPath, 'owasp')
   if (typeof rulesetIdOrOptions === 'string') {
@@ -87,6 +96,14 @@ function _normalizeResults(raw) {
 function generateReport(rulesetNameOrId, input) {
   const bundled = resolveBundledRuleset(rulesetNameOrId);
   const title = bundled ? bundled.rulesetTitle : rulesetNameOrId;
+  // If the input already carries a pre-built report with the same reportId
+  // (produced by governance-summary.js), return it directly to avoid a second
+  // full generate-report pass.
+  const expectedId = bundled ? bundled.rulesetId : _getReportKind(title);
+  if (input && input.report && input.report.reportId === expectedId &&
+      input.report.overview && input.report.breakdown) {
+    return input.report;
+  }
   return _generateReport(title, input);
 }
 

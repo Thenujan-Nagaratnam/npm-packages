@@ -2,7 +2,8 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
-const { runSpectralValidation, resolveBundledRuleset, generateReport, getReportKind } = require('../src');
+const { resolveBundledRuleset, generateReport, getReportKind } = require('../src');
+const { runSpectralValidation } = require('../src/core/validate');
 
 const ROOT_DIR = path.resolve(__dirname, '..');
 const FIXTURES_DIR = path.join(__dirname, 'fixtures');
@@ -72,8 +73,8 @@ async function main() {
     const keys = Object.keys(byId);
     assert.strictEqual(keys.length, 1);
     const v = byId[keys[0]];
-    assert.ok(v.breakdownKeys && v.breakdownKeys.includes('API1:2023'), `breakdown: ${v.breakdownKeys}`);
-    const cat1 = report.breakdown.categories.find((c) => c.id === 'API1:2023');
+    assert.ok(v.breakdownKeys && v.breakdownKeys.includes('api1:2023'), `breakdown: ${v.breakdownKeys}`);
+    const cat1 = report.breakdown.categories.find((c) => c.id === 'api1:2023');
     assert.ok(cat1, 'OWASP category row');
     assert.strictEqual(cat1.total, 1);
   });
@@ -274,8 +275,8 @@ async function main() {
     assert.strictEqual(outcome.status, 0);
     assert.strictEqual(outcome.stderr.trim(), '');
     const parsed = JSON.parse(outcome.stdout);
-    assert.ok(Array.isArray(parsed));
-    assert.strictEqual(parsed.length, 0);
+    assert.ok(Array.isArray(parsed.violations));
+    assert.strictEqual(parsed.violations.length, 0);
   });
 
   await test('CLI rejects --open without html report mode', async () => {

@@ -793,6 +793,47 @@ a[onclick]:hover{color:var(--fg)!important;border-color:var(--focus)!important;b
   .metrics-grid{grid-template-columns:repeat(2,1fr)}
   .cards-grid{grid-template-columns:1fr}
 }
+
+@media print{
+  /* Reset to white background and black text for all themes */
+  :root,.theme-dark,.theme-light{
+    --bg-page:#fff;--bg-surface:#fff;--bg-card:#f7f8fa;--bg-card-2:#eef0f4;
+    --border:rgba(0,0,0,0.15);--border-med:rgba(0,0,0,0.20);
+    --fg:#111;--fg-dim:#444;--fg-muted:#777;
+    --link:#1a56db;--shadow:none;--shadow-sm:none;
+    --error:#b91c1c;--warn:#b45309;--info:#0369a1;--pass:#047857;
+    --ring-track:rgba(0,0,0,0.12);
+  }
+
+  /* Hide interactive chrome */
+  .topbar,#themeToggle,.filter-bar,.issue-detail-panel,
+  button,input,select{display:none!important}
+
+  /* Remove fixed positioning and overflow clipping */
+  body,html{overflow:visible!important}
+  .page{padding:0;max-width:100%}
+
+  /* Reset any slide-in panel transforms */
+  .list-panel{margin-right:0!important;transform:none!important}
+
+  /* Prevent cards breaking across pages */
+  .breakdown-card,.metric-card,.issue-row{break-inside:avoid;page-break-inside:avoid}
+
+  /* Force page break before major sections */
+  .breakdown-section,.explorer-section{break-before:page;page-break-before:page}
+
+  /* Expand collapsed details */
+  details{display:block!important}
+  details>summary{display:none}
+
+  /* Make links print their URL */
+  a[href]::after{content:" (" attr(href) ")";font-size:10px;color:var(--fg-muted)}
+  a[onclick]::after{content:none}
+
+  /* Ensure code snippets are visible */
+  .spec-snippet{border:1px solid var(--border);background:var(--bg-card)!important;color:var(--fg)!important}
+  .spec-line-highlight{background:rgba(234,179,8,0.18)!important}
+}
 </style>
 </head>
 <body>

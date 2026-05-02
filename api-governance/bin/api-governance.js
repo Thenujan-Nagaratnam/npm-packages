@@ -207,9 +207,11 @@ async function run() {
     return;
   }
 
-  // JSON report or raw spectral output
+  // JSON report or raw spectral output.
+  // --report json  → GovernanceSummary (has violations, passedRules, embedded report)
+  // default        → GovernanceSummary as well (richest output)
   const output = JSON.stringify(
-    args.reportFormat === 'json' ? report : result,
+    args.reportFormat === 'json' ? result : result,
     null,
     args.pretty ? 2 : 0
   );

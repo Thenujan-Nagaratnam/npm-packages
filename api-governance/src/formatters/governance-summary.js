@@ -105,6 +105,7 @@ function buildGovernanceSummary({ results, ruleset, rulesetMetadata, buildAiRead
     passedChecks: passedRuleCount,
     totalChecks: totalRules,
     violations,
+    passedRules,
   });
 
   // For AI readiness the report recomputes the score using the weighted harmonic mean
