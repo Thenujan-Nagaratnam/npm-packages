@@ -3,7 +3,7 @@
   "report": {
     "schemaVersion": "1",
     "reportId": "ai-readiness",
-    "title": "WSO2 REST API AI Readiness Guidelines",
+    "title": "REST API AI Readiness Guidelines",
     "violationsById": {
       "ai-readiness-api-description:0": {
         "id": "ai-readiness-api-description:0",
@@ -2999,11 +2999,11 @@
     }
   },
   "metadata": {
-    "name": "WSO2 REST API AI Readiness Guidelines",
+    "name": "REST API AI Readiness Guidelines",
     "description": "This ruleset ensures that REST APIs are well-documented and structured to be easily understood and utilized by AI systems. It checks for comprehensive descriptions, examples, and proper structuring of API components to enhance AI readiness.",
     "ruleCategory": "SPECTRAL",
     "ruleType": "API_DEFINITION",
     "artifactType": "REST_API",
-    "provider": "WSO2"
+    "provider": "API Governance"
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@wso2/api-governance",
+  "name": "api-governance",
   "version": "1.0.0",
   "description": "API governance and quality reporting tool — lint OpenAPI specs against OWASP, REST, and AI Readiness rulesets",
   "engines": {
@@ -25,7 +25,6 @@
     "utils",
     "rule-packs"
   ],
-  "author": "WSO2",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },

@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-npm install @wso2/api-governance
+npm install api-governance
 ```
 
 ## Quick Example
@@ -13,7 +13,7 @@ const {
   runSpectralValidation,
   generateReport,
   buildHtmlReport,
-} = require('@wso2/api-governance');
+} = require('api-governance');
 const fs = require('fs');
 
 async function main() {
@@ -55,10 +55,10 @@ runSpectralValidation(
 // OWASP Top 10
 const result = await runSpectralValidation('./openapi.yaml', 'owasp');
 
-// WSO2 REST API Design Guidelines
+// REST API Design Guidelines
 const result = await runSpectralValidation('./openapi.yaml', 'rest-api-readiness');
 
-// WSO2 AI Readiness Guidelines
+// REST API AI Readiness Guidelines
 const result = await runSpectralValidation('./openapi.yaml', 'ai-readiness');
 ```
 
@@ -158,7 +158,7 @@ fs.writeFileSync('report.html', html);
 ### All three rulesets in one script
 
 ```js
-const { runSpectralValidation, generateReport, buildHtmlReport } = require('@wso2/api-governance');
+const { runSpectralValidation, generateReport, buildHtmlReport } = require('api-governance');
 const fs = require('fs');
 
 const specPath = './openapi.yaml';
@@ -176,7 +176,7 @@ for (const id of ['owasp', 'rest-api-readiness', 'ai-readiness']) {
 ### Fail CI on errors
 
 ```js
-const { runSpectralValidation, generateReport } = require('@wso2/api-governance');
+const { runSpectralValidation, generateReport } = require('api-governance');
 
 const result = await runSpectralValidation('./openapi.yaml', 'owasp');
 const report  = generateReport('owasp', result);

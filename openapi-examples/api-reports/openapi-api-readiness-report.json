@@ -419,7 +419,7 @@
   "restApiReadiness": {
     "spectral": {
       "status": "completed",
-      "ruleset": "references/wso2_rest_api_design_guidelines.yaml",
+      "ruleset": "references/rest_api_design_guidelines.yaml",
       "score": {
         "critical": 0,
         "high": 11,

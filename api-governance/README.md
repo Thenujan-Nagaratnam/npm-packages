@@ -1,8 +1,8 @@
-# API Governor (`@wso2/api-governance`)
+# API Governor (`api-governance`)
 
 > Lint OpenAPI specifications against enterprise rulesets and generate rich governance reports.
 
-API Governor is a CLI tool and Node.js library that runs [Spectral](https://stoplight.io/open-source/spectral) validation against WSO2 built-in rulesets (OWASP Top 10, REST API Design Guidelines, AI Readiness) and produces scored, interactive HTML or JSON reports.
+API Governor is a CLI tool and Node.js library that runs [Spectral](https://stoplight.io/open-source/spectral) validation against built-in rulesets (OWASP Top 10, REST API Design Guidelines, AI Readiness) and produces scored, interactive HTML or JSON reports.
 
 ## Documentation
 
@@ -20,7 +20,7 @@ Full documentation is in the [`docs/`](./docs/) folder:
 ## Quick Start
 
 ```bash
-npm install @wso2/api-governance
+npm install api-governance
 ```
 
 ```bash
@@ -39,8 +39,8 @@ api-governance lint openapi.yaml --ruleset ai-readiness --report json --report-f
 | ID | Name |
 |---|---|
 | `owasp` | OWASP API Security Top 10 (2023) |
-| `rest-api-readiness` | WSO2 REST API Design Guidelines |
-| `ai-readiness` | WSO2 AI Readiness Guidelines |
+| `rest-api-readiness` | REST API Design Guidelines |
+| `ai-readiness` | REST API AI Readiness Guidelines |
 
 ## Requirements
 

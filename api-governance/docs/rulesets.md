@@ -31,9 +31,9 @@ api-governance lint openapi.yaml --ruleset owasp
 
 ---
 
-## `rest-api-readiness` — WSO2 REST API Design Guidelines
+## `rest-api-readiness` — REST API Design Guidelines
 
-Enforces WSO2 REST API design best practices for production-ready APIs.
+Enforces REST API design best practices for production-ready APIs.
 
 **Use when:** You want to ensure your API follows consistent, well-documented REST conventions.
 
@@ -53,7 +53,7 @@ api-governance lint openapi.yaml --ruleset rest-api-readiness
 
 ---
 
-## `ai-readiness` — WSO2 AI Readiness Guidelines
+## `ai-readiness` — REST API AI Readiness Guidelines
 
 Evaluates how well your API is described for consumption by LLM agents and AI-powered tooling.
 

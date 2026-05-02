@@ -28,7 +28,7 @@ export interface GenerateReportInput {
 }
 
 /**
- * Distinguishes AI readiness vs OWASP vs WSO2 REST in the generated payload (`reportId`).
+ * Distinguishes AI readiness vs OWASP vs REST compliance in the generated payload (`reportId`).
  */
 export type ReportKind = 'ai-readiness' | 'owasp' | 'rest-api-readiness';
 
@@ -139,3 +139,9 @@ export function generateReport(rulesetName: string, input: GenerateReportInput):
 export const OWASP_CATEGORIES: ReadonlyArray<{ key: string; label: string; docsUrl?: string }>;
 export const AI_RULE_CATEGORY: Record<string, string>;
 export const AI_CATEGORIES: ReadonlyArray<{ id: string; label: string; description: string }>;
+export const REST_COMPLIANCE_THEMES: ReadonlyArray<{
+  key: string;
+  label: string;
+  description: string;
+  aggregationWeight: number;
+}>;

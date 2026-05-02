@@ -84,7 +84,7 @@ api-governance lint openapi.yaml \
 ```yaml
 - name: API Governance Check
   run: |
-    npx @wso2/api-governance lint openapi.yaml \
+    npx api-governance lint openapi.yaml \
       --ruleset owasp \
       --report json \
       --report-file governance-report.json
@@ -99,7 +99,7 @@ api-governance lint openapi.yaml \
 ### Fail on errors (Node.js script)
 
 ```js
-const { runSpectralValidation, generateReport, resolveBundledRuleset } = require('@wso2/api-governance');
+const { runSpectralValidation, generateReport, resolveBundledRuleset } = require('api-governance');
 
 async function main() {
   const ruleset = resolveBundledRuleset('owasp');

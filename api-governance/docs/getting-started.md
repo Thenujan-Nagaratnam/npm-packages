@@ -9,10 +9,10 @@
 
 ```bash
 # npm
-npm install @wso2/api-governance
+npm install api-governance
 
 # yarn
-yarn add @wso2/api-governance
+yarn add api-governance
 ```
 
 After installation the `api-governance` binary is available in your PATH:
@@ -27,7 +27,7 @@ npx api-governance --help
 # Lint against the OWASP Top 10 ruleset
 api-governance lint openapi.yaml --ruleset owasp
 
-# Lint against WSO2 REST API Design Guidelines
+# Lint against REST API Design Guidelines
 api-governance lint openapi.yaml --ruleset rest-api-readiness
 
 # Lint against AI Readiness Guidelines

@@ -7,7 +7,7 @@ const {
   generateReport: _generateReport,
   getReportKind,
   OWASP_CATEGORIES,
-  WSO2_THEMES,
+  REST_COMPLIANCE_THEMES,
 } = require('./reports/generate-report');
 
 /**
@@ -82,7 +82,7 @@ function _normalizeResults(raw) {
  *
  * Accepts a built-in ruleset ID or a full ruleset display name:
  *   generateReport('owasp', result)
- *   generateReport('WSO2 OWASP Security', result)
+ *   generateReport('OWASP API Security', result)
  */
 function generateReport(rulesetNameOrId, input) {
   const bundled = resolveBundledRuleset(rulesetNameOrId);
@@ -102,5 +102,5 @@ module.exports = {
   constructRulesetPath,
   BUNDLED_RULESETS,
   OWASP_CATEGORIES,
-  WSO2_THEMES,
+  REST_COMPLIANCE_THEMES,
 };

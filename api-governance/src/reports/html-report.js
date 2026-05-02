@@ -623,7 +623,7 @@ function renderTopBar(report) {
       <rect width="32" height="32" rx="7" fill="#7C3AED"/>
       <path d="M8 10h10M8 16h16M8 22h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
     </svg>
-    <span class="topbar-brand">WSO2 Spectral</span>
+    <span class="topbar-brand">API Governance</span>
     <span class="topbar-divider">·</span>
     <span class="topbar-title">${escapeHtml(report.title || 'API Governance Report')}</span>
   </div>

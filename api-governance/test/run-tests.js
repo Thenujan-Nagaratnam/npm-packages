@@ -79,15 +79,15 @@ async function main() {
   });
 
   await test('getReportKind for AI and REST', async () => {
-    assert.strictEqual(getReportKind('WSO2 API AI Readiness'), 'ai-readiness');
-    assert.strictEqual(getReportKind('wso2-rest'), 'rest-api-readiness');
+    assert.strictEqual(getReportKind('REST API AI Readiness'), 'ai-readiness');
+    assert.strictEqual(getReportKind('rest-style-bundle'), 'rest-api-readiness');
   });
 
   await test('resolveBundledRuleset resolves case-insensitive ids', async () => {
     const resolved = resolveBundledRuleset('  AI-READINESS  ');
     assert.ok(resolved);
     assert.strictEqual(resolved.rulesetId, 'ai-readiness');
-    assert.ok(resolved.rulesetFileUrl.endsWith('wso2_rest_api_ai_readiness_guidelines.yaml'));
+    assert.ok(/ai_readiness_guidelines\.yaml$/.test(resolved.rulesetFileUrl));
   });
 
   await test('resolveBundledRuleset returns null for unknown id', async () => {
@@ -169,7 +169,7 @@ async function main() {
     assert.ok(result.aiReadinessSummary);
     assert.strictEqual(typeof result.aiReadinessSummary.score, 'number');
     assert.ok(result.rulesetMetadata);
-    assert.strictEqual(result.rulesetMetadata.name, 'WSO2 REST API AI Readiness Guidelines');
+    assert.strictEqual(result.rulesetMetadata.name, 'REST API AI Readiness Guidelines');
   });
 
   await test('runSpectralValidation supports report output directly', async () => {

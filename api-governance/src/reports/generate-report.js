@@ -5,7 +5,7 @@
  *
  * Logic mirrors the api-designer extension's report-unifier.ts and rule-constants.ts.
  *
- * @module @wso2/api-governance/reports/generate-report
+ * @module api-governance/reports/generate-report
  */
 
 // ─── Severity penalty weights (mirrors AI_SEVERITY_PENALTY in api-designer) ──
@@ -384,7 +384,7 @@ const REPORT_TITLE_BY_ID = {
 const REPORT_BREAKDOWN_META = {
   'ai-readiness':      { title: 'AI Readiness Breakdown',       subtitle: 'Evaluate how well your API is prepared for AI agent consumption' },
   'owasp':             { title: 'Security (OWASP) Breakdown',   subtitle: 'OWASP API Security themes for which this analysis found issues.' },
-  'rest-api-readiness':{ title: 'REST Compliance Breakdown',    subtitle: 'Compliance with WSO2 REST API design guidelines' },
+  'rest-api-readiness':{ title: 'REST Compliance Breakdown',    subtitle: 'Compliance with REST API design guidelines' },
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -795,4 +795,5 @@ module.exports = {
   OWASP_CATEGORIES: OWASP_DIMENSIONS.map((d) => ({ key: d.key.toUpperCase().replace(':', ':'), label: d.label, docsUrl: d.docsUrl })),
   AI_RULE_CATEGORY: AI_READINESS_RULE_CATEGORY_MAP,
   AI_CATEGORIES: Object.entries(AI_BUCKET_DEFINITIONS).map(([id, def]) => ({ id, ...def })),
+  REST_COMPLIANCE_THEMES: REST_API_READINESS_DIMENSIONS,
 };
