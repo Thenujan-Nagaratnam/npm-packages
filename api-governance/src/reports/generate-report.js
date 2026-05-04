@@ -790,10 +790,5 @@ function generateReport(rulesetName, input) {
 
 module.exports = {
   generateReport,
-  getReportKind,
-  // Legacy exports kept for backwards-compatibility.
-  OWASP_CATEGORIES: OWASP_DIMENSIONS.map((d) => ({ key: d.key.toUpperCase().replace(':', ':'), label: d.label, docsUrl: d.docsUrl })),
-  AI_RULE_CATEGORY: AI_READINESS_RULE_CATEGORY_MAP,
-  AI_CATEGORIES: Object.entries(AI_BUCKET_DEFINITIONS).map(([id, def]) => ({ id, ...def })),
-  REST_COMPLIANCE_THEMES: REST_API_READINESS_DIMENSIONS,
+  getReportKind
 };
